@@ -1,7 +1,7 @@
 #include<stdio.h>
 #include<string.h>
 #include<stdlib.h>
-#pragma warning(disable:4996)
+/*#pragma warning(disable:4996)*/
 
 struct Node
 {
@@ -172,7 +172,7 @@ int cal(char a[]) {
 				continue;
 			}
 
-			if ((a[i] == ')' && GetTop(opt) != '(') || (a[i] == '\0' && EmptyStack(opt) != 1) ||
+			if ((a[i] == ')' && GetTop(opt) != '(') || (a[i] == 0 && EmptyStack(opt) != 1) ||
 				Priority(a[i]) <= Priority(GetTop(opt)))
 			{
 				char optchar = Pop(opt);

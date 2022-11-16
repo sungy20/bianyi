@@ -1,14 +1,20 @@
 ﻿import sys
 from antlr4 import *
-from C2LLVMLexer import C2LLVMLexer
-from C2LLVMParser import C2LLVMParser
+from antlr_about.C2LLVMLexer import C2LLVMLexer
+from antlr_about.C2LLVMParser import C2LLVMParser
+from generator.generator import LLVMGenerator
  
-def main(argv):
-    input_stream = FileStream(argv[1])
+def makeTree(filename):
+    input_stream = FileStream(filename)
     lexer = C2LLVMLexer(input_stream)
     stream = CommonTokenStream(lexer)
     parser = C2LLVMParser(stream)
-    #tree = parser.startRule()
+    tree = parser.start()
+    return tree
  
+name = 'source\simpleC.c'
 if __name__ == '__main__':
-    main(sys.argv)
+    tree = makeTree(name)
+    gen = LLVMGenerator()
+    gen.visit(tree)
+    gen.save("test.ll")

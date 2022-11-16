@@ -22,6 +22,11 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="generator.py" />
+    <Compile Include="generator\generator.py" />
+    <Compile Include="generator\types.py" />
+    <Compile Include="generator\util.py" />
+    <Compile Include="generator\__init__.py" />
     <Compile Include="编译.py" />
   </ItemGroup>
   <ItemGroup>
@@ -34,6 +39,16 @@
       <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
       <Architecture>X64</Architecture>
     </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="generator\" />
+    <Folder Include="generator\__pycache__\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="generator\__pycache__\generator.cpython-39.pyc" />
+    <Content Include="generator\__pycache__\types.cpython-39.pyc" />
+    <Content Include="generator\__pycache__\util.cpython-39.pyc" />
+    <Content Include="generator\__pycache__\__init__.cpython-39.pyc" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

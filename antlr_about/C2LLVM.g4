@@ -10,12 +10,12 @@ function : varType StrVar '(' params ')' packcontent;
 
 params : param | param ',' params |;
 
-// int a | int * a | int a[]
-param: varType StrVar | varPointer | array;
+// int a | int * a
+param: usualType StrVar;
 
-varPointer: varType '*' StrVar | 'struct' StrVar '*' StrVar | StrVar '*' StrVar;
+usualType: varType | pointerType ;
 
-array: varType StrVar '[' ']';
+pointerType: varType '*' | 'struct' StrVar '*' | StrVar '*';
 
 packcontent: content | ('{' content '}');
 
@@ -23,9 +23,9 @@ content : (stat|block) content | (stat|block) | ;
 
 stat : declareStat | assignStat | breakStat | returnStat | freeStat | continueStat | (customFunc ';') | scanfStat | printfStat;
 
-declareStat: (varType StrVar | varPointer |  varType arrayValue) ';';
+declareStat: (usualType StrVar |  varType arrayValue) ';';
 
-assignStat: (varType StrVar | varPointer | StrVar | arrayValue | expr) '=' expr ';';
+assignStat: (usualType StrVar | StrVar | arrayValue | expr) '=' expr ';';
 
 breakStat: 'break' ';';
 
@@ -78,9 +78,7 @@ varType: 'int' | 'char' | 'struct';
 
 INT: ('-')?[0-9]+;
 
-operator: '+' | '-' | '*' | '/' | '==' | '!=' | ARROW | '>' | '>=' | '<=' | '<' | '>';
-
-ARROW: '->';
+operator: '+' | '-' | '*' | '/' | '==' | '!=' | '->' | '>' | '>=' | '<=' | '<' | '>';
 
 CHAR : '\'' . '\'' ;
 

@@ -26,12 +26,12 @@ class C2LLVMListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by C2LLVMParser#struct.
-    def enterStruct(self, ctx:C2LLVMParser.StructContext):
+    # Enter a parse tree produced by C2LLVMParser#structPack.
+    def enterStructPack(self, ctx:C2LLVMParser.StructPackContext):
         pass
 
-    # Exit a parse tree produced by C2LLVMParser#struct.
-    def exitStruct(self, ctx:C2LLVMParser.StructContext):
+    # Exit a parse tree produced by C2LLVMParser#structPack.
+    def exitStructPack(self, ctx:C2LLVMParser.StructPackContext):
         pass
 
 
@@ -62,12 +62,21 @@ class C2LLVMListener(ParseTreeListener):
         pass
 
 
-    # Enter a parse tree produced by C2LLVMParser#varPointer.
-    def enterVarPointer(self, ctx:C2LLVMParser.VarPointerContext):
+    # Enter a parse tree produced by C2LLVMParser#usualType.
+    def enterUsualType(self, ctx:C2LLVMParser.UsualTypeContext):
         pass
 
-    # Exit a parse tree produced by C2LLVMParser#varPointer.
-    def exitVarPointer(self, ctx:C2LLVMParser.VarPointerContext):
+    # Exit a parse tree produced by C2LLVMParser#usualType.
+    def exitUsualType(self, ctx:C2LLVMParser.UsualTypeContext):
+        pass
+
+
+    # Enter a parse tree produced by C2LLVMParser#pointerType.
+    def enterPointerType(self, ctx:C2LLVMParser.PointerTypeContext):
+        pass
+
+    # Exit a parse tree produced by C2LLVMParser#pointerType.
+    def exitPointerType(self, ctx:C2LLVMParser.PointerTypeContext):
         pass
 
 
