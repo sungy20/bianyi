@@ -17,6 +17,15 @@ class C2LLVMListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by C2LLVMParser#codeBlock.
+    def enterCodeBlock(self, ctx:C2LLVMParser.CodeBlockContext):
+        pass
+
+    # Exit a parse tree produced by C2LLVMParser#codeBlock.
+    def exitCodeBlock(self, ctx:C2LLVMParser.CodeBlockContext):
+        pass
+
+
     # Enter a parse tree produced by C2LLVMParser#include.
     def enterInclude(self, ctx:C2LLVMParser.IncludeContext):
         pass
@@ -77,15 +86,6 @@ class C2LLVMListener(ParseTreeListener):
 
     # Exit a parse tree produced by C2LLVMParser#pointerType.
     def exitPointerType(self, ctx:C2LLVMParser.PointerTypeContext):
-        pass
-
-
-    # Enter a parse tree produced by C2LLVMParser#array.
-    def enterArray(self, ctx:C2LLVMParser.ArrayContext):
-        pass
-
-    # Exit a parse tree produced by C2LLVMParser#array.
-    def exitArray(self, ctx:C2LLVMParser.ArrayContext):
         pass
 
 

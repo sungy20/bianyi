@@ -27,6 +27,7 @@
     <Compile Include="generator\types.py" />
     <Compile Include="generator\util.py" />
     <Compile Include="generator\__init__.py" />
+    <Compile Include="llvmexecutor.py" />
     <Compile Include="编译.py" />
   </ItemGroup>
   <ItemGroup>

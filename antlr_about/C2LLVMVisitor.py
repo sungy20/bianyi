@@ -14,6 +14,11 @@ class C2LLVMVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by C2LLVMParser#codeBlock.
+    def visitCodeBlock(self, ctx:C2LLVMParser.CodeBlockContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by C2LLVMParser#include.
     def visitInclude(self, ctx:C2LLVMParser.IncludeContext):
         return self.visitChildren(ctx)
@@ -46,11 +51,6 @@ class C2LLVMVisitor(ParseTreeVisitor):
 
     # Visit a parse tree produced by C2LLVMParser#pointerType.
     def visitPointerType(self, ctx:C2LLVMParser.PointerTypeContext):
-        return self.visitChildren(ctx)
-
-
-    # Visit a parse tree produced by C2LLVMParser#array.
-    def visitArray(self, ctx:C2LLVMParser.ArrayContext):
         return self.visitChildren(ctx)
 
 

@@ -37,6 +37,7 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitStart(self, ctx:C2LLVMParser.StartContext):
         for child in ctx.children:
+            self.visit(child) #TODO头文件,结构体定义
             if self.match_rule(child, C2LLVMParser.RULE_include):
                 pass #TODO头文件
             elif self.match_rule(child, C2LLVMParser.RULE_structPack):
@@ -44,6 +45,14 @@ class LLVMGenerator(C2LLVMVisitor):
             elif self.match_rule(child, C2LLVMParser.RULE_function):
                 self.visit(child)
 
+    def visitCodeBlock(self, ctx: C2LLVMParser.CodeBlockContext):
+        child = ctx.children[0]
+        if self.match_rule(child, C2LLVMParser.RULE_include):
+            pass #TODO头文件
+        elif self.match_rule(child, C2LLVMParser.RULE_structPack):
+            pass #TODO结构体定义
+        elif self.match_rule(child, C2LLVMParser.RULE_function):
+            self.visit(child)
 
     def visitFunction(self, ctx:C2LLVMParser.FunctionContext):
         """

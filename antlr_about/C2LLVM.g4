@@ -1,6 +1,8 @@
 grammar C2LLVM;
 
-start : (include)* (structPack)* (function)* ;
+start : codeBlock* ;
+
+codeBlock: include | structPack | function ;
 
 include : '#include' '<' StrVar '.' StrVar '>' ;
 
