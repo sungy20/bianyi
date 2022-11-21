@@ -2,10 +2,10 @@
 import sys
 from ctypes import CFUNCTYPE, c_int
 
-#初始化
+# All these initializations are required for code generation!
 llvm.initialize()
 llvm.initialize_native_target()
-llvm.initialize_native_asmprinter()
+llvm.initialize_native_asmprinter()  # yes, even this one
 
 
 def create_execution_engine():

@@ -119,6 +119,11 @@ class C2LLVMVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by C2LLVMParser#array.
+    def visitArray(self, ctx:C2LLVMParser.ArrayContext):
+        return self.visitChildren(ctx)
+
+
     # Visit a parse tree produced by C2LLVMParser#funcExpr.
     def visitFuncExpr(self, ctx:C2LLVMParser.FuncExprContext):
         return self.visitChildren(ctx)

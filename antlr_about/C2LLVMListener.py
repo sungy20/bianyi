@@ -206,6 +206,15 @@ class C2LLVMListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by C2LLVMParser#array.
+    def enterArray(self, ctx:C2LLVMParser.ArrayContext):
+        pass
+
+    # Exit a parse tree produced by C2LLVMParser#array.
+    def exitArray(self, ctx:C2LLVMParser.ArrayContext):
+        pass
+
+
     # Enter a parse tree produced by C2LLVMParser#funcExpr.
     def enterFuncExpr(self, ctx:C2LLVMParser.FuncExprContext):
         pass
