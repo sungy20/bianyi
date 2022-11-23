@@ -3,6 +3,7 @@
 
 
 int main() {
-	int i = 100;
-	return i;
+    int k = 1;
+    char i[333] = "shit";
+	return k;
 }
