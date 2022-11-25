@@ -25,7 +25,7 @@ int main() {
 		int j = 0;
 		while (1) {
 			if (str[j] != str[i - j - 1]) {
-				return k;
+				k = 0;
 			}
 			if (j == i / 2 - 1) {
 				k = 1;
@@ -34,6 +34,7 @@ int main() {
 			j = j + 1;
 		}
 	}
+	return 0;
 }
 
 /*int main() {

@@ -77,7 +77,6 @@ class LLVMGenerator(C2LLVMVisitor):
         self.break_block = None
         self.Blocks.append(self.builder.block)
         self.depth = self.depth+1
-
         self.visit(ctx.packcontent())
         # TODO补充函数没有return的情况
 
@@ -249,6 +248,7 @@ class LLVMGenerator(C2LLVMVisitor):
         ret_val = self.visit(ctx.expr())
         converted_val = LLVMTypes.cast_type(
             self.builder, target_type=self.builder.function.type.pointee.return_type, value=ret_val)
+        print(self.module)
         self.builder.ret(converted_val)
 
     def visitContinueStat(self, ctx:C2LLVMParser.ContinueStatContext):
@@ -270,7 +270,8 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         #nowd = self.depth
         #with self.builder.goto_block(self.Blocks[nowd]):
-        self.builder.position_at_end(self.Blocks[-1])
+        #curblock = self.Blocks[-1]
+        #self.builder.position_at_end(curblock)
         name_prefix = self.builder.block.name
         cond_block = self.builder.append_basic_block(name=name_prefix+".while_cond")  # 条件判断语句块
         loop_block = self.builder.append_basic_block(name=name_prefix+".while_body")  # 循环语句块
@@ -283,7 +284,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self.continue_block, self.break_block = cond_block, end_block
         
         cond = ctx.condition()
-        #self.builder.branch(cond_block)   #这里应该是写condblock的内容
+        self.builder.branch(cond_block)   #这里应该是写condblock的内容
         self.builder.position_at_start(cond_block)
         cond_val = self.visit(cond)
         cond_val = LLVMTypes.cast_python_to_LLVM(self.builder,cond_val)
@@ -308,7 +309,8 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         #nowd = self.depth
         #with self.builder.goto_block(self.Blocks[nowd]):
-        self.builder.position_at_end(self.Blocks[-1])
+        #curblock = self.Blocks[-1]
+        #self.builder.position_at_end(curblock)
         self.chooseElse = 1
         cond_val = self.visit(ctx.condition())
         cond_val = LLVMTypes.cast_python_to_LLVM(self.builder,cond_val)
