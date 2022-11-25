@@ -1,6 +1,7 @@
 
 /*#pragma warning(disable:4996)*/
-int huiwen(char* str) {
+int main() {
+	char str[100] = "12321";
 	int i = 0;  /*length of str*/
 	int k = 0;  /* 0 no 1 yes */
 	while (1) {
@@ -35,8 +36,8 @@ int huiwen(char* str) {
 	}
 }
 
-int main() {
+/*int main() {
 	char str[100] = "12321";
 	int res = huiwen(str);
 	return res;
-}
+}*/

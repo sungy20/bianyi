@@ -19,7 +19,7 @@ usualType: varType | pointerType ;
 
 pointerType: varType '*' | 'struct' StrVar '*' | StrVar '*';
 
-packcontent: content | ('{' content '}');
+packcontent: (stat | block | ) | ('{' content '}');
 
 content : (stat|block) content | (stat|block) | ;
 
@@ -62,15 +62,15 @@ actualParam : expr ;
 
 mallocFunc: 'malloc' '(' 'sizeof' '(' StrVar ')' ')';
 
-block: whileBlock | ifBlock | elseBlock | elseifBlock;
+block: whileBlock | ifBlock | elseifBlock;
 
-ifBlock: 'if' '(' condition ')' packcontent;
+ifBlock: 'if' '(' condition ')' packcontent elseBlock?;
 
 whileBlock: 'while' '(' condition ')' packcontent;
 
 elseBlock: 'else' packcontent;
 
-elseifBlock: 'else if' '(' condition ')' packcontent;
+elseifBlock: 'else if' '(' condition ')' packcontent elseBlock?;
 
 condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
 

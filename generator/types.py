@@ -79,6 +79,11 @@ class LLVMTypes(object):
         return type in [cls.float, cls.double]
 
     @classmethod
+    def _is_char(cls, type):
+        """判断某个类型是否为浮点数类型"""
+        return type in [cls.char]
+
+    @classmethod
     def cast_type(cls, builder, target_type, value):
         """
         强制类型转换
@@ -96,6 +101,8 @@ class LLVMTypes(object):
                 return builder.sext(value, target_type)
             else:  #减少整数位数
                 return builder.trunc(value, target_type)
+        elif cls._is_char(value.type) and cls._is_int(target_type):  #字符转化为整数
+            return builder.zext(value, target_type)
         elif cls._is_float(value.type) and cls._is_float(target_type):  #浮点数转换为浮点数
             if value.type == cls.float:  #增加浮点数精度
                 return builder.fpext(value, target_type)
@@ -117,3 +124,12 @@ class LLVMTypes(object):
             return builder.bitcast(value, target_type)
         else:
             print("No known conversion from '%s' to '%s'\n" % (value.type, target_type))
+
+    @classmethod
+    def cast_python_to_LLVM(cls, builder, value):
+        if isinstance(value,int):
+            return cls.int(value)
+        elif isinstance(value,bool):
+            return cls.bool(value)
+        else:  #TODO 如果有需要用到的再补充
+            return value
