@@ -237,7 +237,6 @@ class LLVMGenerator(C2LLVMVisitor):
                 pass
         else:
             pass
-        return True
 
     def visitBreakStat(self, ctx:C2LLVMParser.BreakStatContext):
         self.builder.branch(self.break_block)
@@ -314,7 +313,6 @@ class LLVMGenerator(C2LLVMVisitor):
         #self.builder.position_at_end(curblock)
         self.chooseElse = 1
         cond_val = self.visit(ctx.condition())
-        cond_val = LLVMTypes.cast_python_to_LLVM(self.builder, cond_val)
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         if len(ctx.children) == 6:  # 存在else分支
             with self.builder.if_else(converted_cond_val) as (then, otherwise):
@@ -369,32 +367,32 @@ class LLVMGenerator(C2LLVMVisitor):
             str_len = len(parse_escape(text[1:-1]))
             retval = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
         if len(ctx.children) == 3:  #需要判断运算符号以及运算对象是常量还是变量
-            rval = self.visit(ctx.expr())
+            lval = self.visit(ctx.expr()) #seems actually it's lval
             op = ctx.operator().getText()
             if op == '+':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.add(retval, rval)   #两值相加
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.add(lval, retval)   #两值相加
             elif op == '/':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.sdiv(retval,rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.sdiv(lval, retval)
             elif op == '*':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.mul(retval,rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.mul(lval, retval)
             elif op == '-':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  # 将两个值都转换为int
-                retval = self.builder.sub(retval, rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.sub(lval, retval)
             elif op == '==':  # TODO 其他运算符
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  # 将两个值都转换为int
-                retval = self.builder.icmp_signed("==", retval, rval)  # retval是LLVM的bool值
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.icmp_signed("==", lval, retval)  # retval是LLVM的bool值
             elif op == '!=':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  # 将两个值都转换为int
-                retval = self.builder.icmp_signed("!=", retval, rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.icmp_signed("!=", lval, retval)
             return retval
 
         else:
@@ -419,16 +417,16 @@ class LLVMGenerator(C2LLVMVisitor):
                 lval = self.visit(child)
                 logic = ctx.logic().getText()
                 rval = self.visit(ctx.children[2])
+                if isinstance(lval.type, ir.PointerType):
+                    lval = self.builder.load(lval)
+                if isinstance(rval.type, ir.PointerType):
+                    rval = self.builder.load(rval)
                 if logic == '==':
-                    if self.builder.icmp_signed("==", lval, rval):
-                        return 1
-                    else:
-                        return 0
+                    boolRetVal = self.builder.icmp_signed("==", lval, rval)
+                    return boolRetVal
                 elif logic == '!=':
-                    if self.builder.icmp_signed("!=", lval, rval):
-                        return 1
-                    else:
-                        return 0
+                    boolRetVal = self.builder.icmp_signed("!=", lval, rval)
+                    return boolRetVal
 
         # TODO补充长度为5时情况
 
@@ -440,7 +438,7 @@ class LLVMGenerator(C2LLVMVisitor):
         varp = self.local_vars[var]
         index = self.visit(ctx.expr())
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
-        valp = self.builder.gep(varp,[index,index])
+        valp = self.builder.gep(varp, [index, index])
         return valp
 
     def visitArray(self, ctx:C2LLVMParser.ArrayContext):

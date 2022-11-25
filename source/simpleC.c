@@ -3,7 +3,6 @@
 
 
 int main() {
-    int k=1;
-    printf("%d",k);
-    return 0;
+    int k = 15;
+    return k - 3;
 }
