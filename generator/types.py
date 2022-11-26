@@ -102,7 +102,7 @@ class LLVMTypes(object):
             else:  #减少整数位数
                 return builder.trunc(value, target_type)
         elif cls._is_char(value.type) and cls._is_int(target_type):  #字符转化为整数
-            return builder.zext(value, target_type)
+            return builder.zext(value, target_type)      
         elif cls._is_float(value.type) and cls._is_float(target_type):  #浮点数转换为浮点数
             if value.type == cls.float:  #增加浮点数精度
                 return builder.fpext(value, target_type)
