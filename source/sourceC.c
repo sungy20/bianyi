@@ -15,7 +15,7 @@ struct LinkStack
 	int count;
 };
 
-int huiwen(char str[]) {
+int huiwen(char* str) {
 	int i = 0;  /*length of str*/
 	int k = 0;  /* 0 no 1 yes */
 	while (1) {
@@ -118,7 +118,7 @@ int Pop(LinkStack* S)
 	return e;
 }
 
-int cal(char a[]) {
+int cal(char* a) {
 	LinkStack* num;
 	LinkStack* opt;
 	int i = 0;

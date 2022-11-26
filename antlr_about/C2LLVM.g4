@@ -72,7 +72,7 @@ elseBlock: 'else' packcontent;
 
 elseifBlock: 'else if' '(' condition ')' packcontent elseBlock?;
 
-condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
+condition: expr | '(' expr ')' logic condition | condition logic condition | '(' condition ')';
 
 logic: '&&' | '||' |  '==' | '!=' | '>' | '>=' | '<=' | '<' | '>';
 
