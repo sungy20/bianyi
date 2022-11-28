@@ -204,5 +204,10 @@ class C2LLVMVisitor(ParseTreeVisitor):
         return self.visitChildren(ctx)
 
 
+    # Visit a parse tree produced by C2LLVMParser#number.
+    def visitNumber(self, ctx:C2LLVMParser.NumberContext):
+        return self.visitChildren(ctx)
+
+
 
 del C2LLVMParser

@@ -25,7 +25,7 @@ content : (stat|block) content | (stat|block) | ;
 
 stat : declareStat | assignStat | breakStat | returnStat | freeStat | continueStat | (customFunc ';') | scanfStat | printfStat;
 
-declareStat: (usualType StrVar |  varType arrayValue) ';';
+declareStat: (usualType StrVar |  varType array) ';';
 
 assignStat: (usualType StrVar | StrVar | arrayValue | expr | varType array) '=' expr ';';
 
@@ -41,8 +41,8 @@ scanfStat: 'scanf' '(' STRING (',' expr)+ ')' ';';
 
 printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
 
-expr: (StrVar | INT | arrayValue | funcExpr | CHAR | STRING) |
- expr operator (StrVar | INT | arrayValue | funcExpr | CHAR) ;
+expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
+ expr operator (StrVar | number | arrayValue | funcExpr | CHAR) ;
 
 arrayValue: StrVar '[' expr ']';
 
@@ -72,7 +72,7 @@ elseBlock: 'else' packcontent;
 
 elseifBlock: 'else if' '(' condition ')' packcontent elseBlock?;
 
-condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
+condition: expr | '(' expr ')' logic condition | condition logic condition | '(' condition ')';
 
 logic: '&&' | '||' |  '==' | '!=' | '>' | '>=' | '<=' | '<' | '>';
 
@@ -80,9 +80,11 @@ StrVar : [a-zA-Z][a-zA-Z0-9_]*;
 
 varType: 'int' | 'char' | 'struct';
 
-INT: ('-')?[0-9]+;
-
 operator: '+' | '-' | '*' | '/' | '->';
+
+number : ('+'|'-')?INT;
+
+INT: [0-9]+;
 
 CHAR : '\'' . '\'' ;
 

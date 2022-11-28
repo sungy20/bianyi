@@ -359,5 +359,14 @@ class C2LLVMListener(ParseTreeListener):
         pass
 
 
+    # Enter a parse tree produced by C2LLVMParser#number.
+    def enterNumber(self, ctx:C2LLVMParser.NumberContext):
+        pass
+
+    # Exit a parse tree produced by C2LLVMParser#number.
+    def exitNumber(self, ctx:C2LLVMParser.NumberContext):
+        pass
+
+
 
 del C2LLVMParser

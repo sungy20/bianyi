@@ -169,11 +169,17 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitDeclareStat(self, ctx: C2LLVMParser.DeclareStatContext):  #TODO
         """
-        declareStat: (usualType StrVar |  varType arrayValue) ';';
+        declareStat: (usualType StrVar |  varType array) ';';
         """
         if len(ctx.children) == 3: #正常情况
-            if self.match_rule(ctx.children[1], C2LLVMParser.RULE_arrayValue): #TODO 声明数组
-                pass
+            if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #TODO 声明数组
+                vtype = LLVMTypes.str2type[ctx.varType().getText()]
+                var, size = self.visit(ctx.array())
+                if size == None:
+                    print("declare need size")
+                varp = LLVMTypes.get_array_type(vtype,size.constant)
+                varp = self.builder.alloca(varp,size)
+                self.local_vars[var] = varp
             else: #TODO 声明单个变量
                 varType = self.visit(ctx.usualType())
                 var = ctx.StrVar().getText()
@@ -230,13 +236,13 @@ class LLVMGenerator(C2LLVMVisitor):
             elif(ctx.arrayValue()):
                 valp = self.visit(ctx.arrayValue())
                 val = self.visit(ctx.expr())
+                varType = valp.type.pointee
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
                 self.builder.store(converted_val,valp)
             else : #TODO expr = expr;情况
                 pass
         else:
             pass
-        return True
 
     def visitBreakStat(self, ctx:C2LLVMParser.BreakStatContext):
         self.builder.branch(self.break_block)
@@ -313,7 +319,6 @@ class LLVMGenerator(C2LLVMVisitor):
         #self.builder.position_at_end(curblock)
         self.chooseElse = 1
         cond_val = self.visit(ctx.condition())
-        cond_val = LLVMTypes.cast_python_to_LLVM(self.builder,cond_val)
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         if len(ctx.children) == 6:  # 存在else分支
             with self.builder.if_else(converted_cond_val) as (then, otherwise):
@@ -333,40 +338,12 @@ class LLVMGenerator(C2LLVMVisitor):
         elseBlock: 'else' packcontent;
         """
         self.visit(ctx.packcontent())
-        
 
-    def visitCondition(self, ctx:C2LLVMParser.ConditionContext):
-        """
-        condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
-        return:表达式的值
-        """
-        if len(ctx.children) == 1:
-            val = self.visit(ctx.expr())
-            return val
-        elif len(ctx.children) == 3:  #TODO补充
-            child = ctx.children[0]
-            if self.match_rule(child, C2LLVMParser.RULE_condition): #condition logic condition
-                #logic: '&&' | '||' |  '==' | '!=' | '>' | '>=' | '<=' | '<' | '>';
-                lval = self.visit(child)
-                logic = ctx.logic().getText()
-                rval = self.visit(ctx.children[2])
-                if(logic == '=='):
-                    if lval == rval:
-                        return 1
-                    else:
-                       return 0
-                elif(logic == '!='):
-                    if lval != rval:
-                        return 1
-                    else:
-                       return 0
-
-        #TODO补充长度为5时情况
 
     def visitExpr(self, ctx:C2LLVMParser.ExprContext):
         """
-        expr: (StrVar | INT | arrayValue | funcExpr | CHAR | STRING) |
-        (StrVar | INT | arrayValue | funcExpr | CHAR) operator expr ;
+        expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
+        (StrVar | number | arrayValue | funcExpr | CHAR) operator expr ;
         operator: '+' | '-' | '*' | '/' | '->';
         :param ctx:
         :return: 表达式的值
@@ -381,8 +358,8 @@ class LLVMGenerator(C2LLVMVisitor):
                 # TODO raise exception
                 print(self.module.functions)
                 print("Undefined identifier: '%s'\n" % text)
-        elif ctx.INT():
-            text = ctx.INT().getText()
+        elif ctx.number():
+            text = ctx.number().getText()
             retval = LLVMTypes.get_const_from_str(LLVMTypes.int, text)
         elif ctx.arrayValue():  #数组情况
             retval = self.visit(ctx.arrayValue())
@@ -396,28 +373,68 @@ class LLVMGenerator(C2LLVMVisitor):
             str_len = len(parse_escape(text[1:-1]))
             retval = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
         if len(ctx.children) == 3:  #需要判断运算符号以及运算对象是常量还是变量
-            rval = self.visit(ctx.expr())
+            lval = self.visit(ctx.expr()) #seems actually it's lval
             op = ctx.operator().getText()
             if op == '+':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.add(retval, rval)   #两值相加
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.add(lval, retval)   #两值相加
             elif op == '/':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.sdiv(retval,rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.sdiv(lval, retval)
             elif op == '*':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  #将两个值都转换为int
-                retval = self.builder.mul(retval,rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  #将两个值都转换为int
+                retval = self.builder.mul(lval, retval)
             elif op == '-':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
-                rval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=rval)  # 将两个值都转换为int
-                retval = self.builder.sub(retval, rval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.sub(lval, retval)
+            elif op == '==':  # TODO 其他运算符
+                retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.icmp_signed("==", lval, retval)  # retval是LLVM的bool值
+            elif op == '!=':
+                retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
+                lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
+                retval = self.builder.icmp_signed("!=", lval, retval)
             return retval
 
         else:
             return retval
+
+    def visitCondition(self, ctx: C2LLVMParser.ConditionContext):
+        """
+        condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
+        return:表达式的值
+        """
+        """
+                condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
+                return:表达式的值
+                """
+        if len(ctx.children) == 1:
+            val = self.visit(ctx.children[0])
+            return val
+        elif len(ctx.children) == 3:  # TODO补充
+            child = ctx.children[0]
+            if self.match_rule(child, C2LLVMParser.RULE_condition):  # condition logic condition
+                # logic: '&&' | '||' |  '==' | '!=' | '>' | '>=' | '<=' | '<' | '>';
+                lval = self.visit(child)
+                logic = ctx.logic().getText()
+                rval = self.visit(ctx.children[2])
+                if isinstance(lval.type, ir.PointerType):
+                    lval = self.builder.load(lval)
+                if isinstance(rval.type, ir.PointerType):
+                    rval = self.builder.load(rval)
+                if logic == '==':
+                    boolRetVal = self.builder.icmp_signed("==", lval, rval)
+                    return boolRetVal
+                elif logic == '!=':
+                    boolRetVal = self.builder.icmp_signed("!=", lval, rval)
+                    return boolRetVal
+
+        # TODO补充长度为5时情况
 
     def visitArrayValue(self, ctx:C2LLVMParser.ArrayValueContext):
         """
@@ -427,8 +444,9 @@ class LLVMGenerator(C2LLVMVisitor):
         varp = self.local_vars[var]
         index = self.visit(ctx.expr())
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
-        valp = self.builder.gep(varp,[index,index])
+        valp = self.builder.gep(varp, [index, index])
         return valp
+
 
     def visitArray(self, ctx:C2LLVMParser.ArrayContext):
         """
@@ -442,6 +460,35 @@ class LLVMGenerator(C2LLVMVisitor):
             return var, size
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
+
+    def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
+        #todo
+        #用printf打印变量值
+        #目前采用直接print的方法测试，因此在编译时就会输出
+        #最后会改成存到test.ll中
+        format = ctx.children[2].getText()
+        format = format[1:-1]
+        var_index = 0
+        flag = 0
+        self.builder
+        for c in format:
+            if c == '%':
+                if flag == 1:
+                    print('%')
+                flag = 1
+            elif flag == 1:
+                val = self.visit(ctx.children[4+2*var_index])
+                if c == 's' or c == 'c':
+                    print(val)
+                elif c == 'd':
+                    print(val)
+                flag = 0
+                var_index = var_index + 1
+            else:
+                print(c)
+
+    def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
+        pass
 
     def save(self, filename):
         """保存到文件"""

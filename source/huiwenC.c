@@ -14,7 +14,7 @@ int main() {
 			if (str[j] != str[i - j - 1]) {
 				return k;
 			}
-			if (j == i / 2 - 1) {
+			if (j == i / 2) {
 				k = 1;
 				return k;
 			}
@@ -34,7 +34,7 @@ int main() {
 			j = j + 1;
 		}
 	}
-	return 0;
+	return k;
 }
 
 /*int main() {
