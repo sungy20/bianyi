@@ -198,6 +198,8 @@ class LLVMGenerator(C2LLVMVisitor):
                 varType = self.visit(ctx.usualType())
                 var = ctx.StrVar().getText()
                 val = self.visit(ctx.expr()[0])
+                if isinstance(val.type,ir.PointerType):
+                    val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  #将val转换为varType类型
                 #申请栈空间，并返回对应的指针
                 varp = self.builder.alloca(varType);
@@ -235,7 +237,9 @@ class LLVMGenerator(C2LLVMVisitor):
                 #self.builder.store(LLVMTypes.int(1),valp)
             elif(ctx.arrayValue()):
                 valp = self.visit(ctx.arrayValue())
-                val = self.visit(ctx.expr())
+                val = self.visit(ctx.expr()[0])
+                if isinstance(val.type,ir.PointerType):
+                    val = self.builder.load(val)
                 varType = valp.type.pointee
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
                 self.builder.store(converted_val,valp)
@@ -252,6 +256,8 @@ class LLVMGenerator(C2LLVMVisitor):
          'return' expr ';'
         """
         ret_val = self.visit(ctx.expr())
+        if isinstance(ret_val.type,ir.PointerType):
+            ret_val = self.builder.load(ret_val)
         converted_val = LLVMTypes.cast_type(
             self.builder, target_type=self.builder.function.type.pointee.return_type, value=ret_val)
         print(self.module)
@@ -262,6 +268,19 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitFreeStat(self, ctx: C2LLVMParser.FreeStatContext):
         pass  #TODO
+
+    def visitPrintfStat(self, ctx: C2LLVMParser.PrintfStatContext):
+        """
+        printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
+        """
+        text = ctx.STRING().getText()
+        str_len = len(parse_escape(text[1:-1]))
+        msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name='msg')
+        variable.initializer = msg
+        zero = ir.Constant(ir.types.IntType(32), 0)
+        msg = variable.gep((zero, zero))
+        self.builder.call(self.local_vars["printf"],(msg,))
 
     def visitBlock(self, ctx: C2LLVMParser.BlockContext):
         """
@@ -406,13 +425,9 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitCondition(self, ctx: C2LLVMParser.ConditionContext):
         """
-        condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
+        condition: expr | '(' expr ')' logic condition | condition logic condition | '(' condition ')';
         return:表达式的值
         """
-        """
-                condition: expr | '(' expr ')' logic condition | expr logic condition | condition logic condition | '(' condition ')';
-                return:表达式的值
-                """
         if len(ctx.children) == 1:
             val = self.visit(ctx.children[0])
             return val
@@ -427,12 +442,14 @@ class LLVMGenerator(C2LLVMVisitor):
                     lval = self.builder.load(lval)
                 if isinstance(rval.type, ir.PointerType):
                     rval = self.builder.load(rval)
-                if logic == '==':
-                    boolRetVal = self.builder.icmp_signed("==", lval, rval)
-                    return boolRetVal
-                elif logic == '!=':
-                    boolRetVal = self.builder.icmp_signed("!=", lval, rval)
-                    return boolRetVal
+                #if logic == '==':
+                #    boolRetVal = self.builder.icmp_signed("==", lval, rval)
+                #    return boolRetVal
+                #elif logic == '!=':
+                #    boolRetVal = self.builder.icmp_signed("!=", lval, rval)
+                #    return boolRetVal
+                boolRetVal = self.builder.icmp_signed(logic, lval, rval)
+                return boolRetVal
 
         # TODO补充长度为5时情况
 
@@ -461,31 +478,31 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
-    def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
-        #todo
-        #用printf打印变量值
-        #目前采用直接print的方法测试，因此在编译时就会输出
-        #最后会改成存到test.ll中
-        format = ctx.children[2].getText()
-        format = format[1:-1]
-        var_index = 0
-        flag = 0
-        self.builder
-        for c in format:
-            if c == '%':
-                if flag == 1:
-                    print('%')
-                flag = 1
-            elif flag == 1:
-                val = self.visit(ctx.children[4+2*var_index])
-                if c == 's' or c == 'c':
-                    print(val)
-                elif c == 'd':
-                    print(val)
-                flag = 0
-                var_index = var_index + 1
-            else:
-                print(c)
+    #def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
+    #    #todo
+    #    #用printf打印变量值
+    #    #目前采用直接print的方法测试，因此在编译时就会输出
+    #    #最后会改成存到test.ll中
+    #    format = ctx.children[2].getText()
+    #    format = format[1:-1]
+    #    var_index = 0
+    #    flag = 0
+    #    self.builder
+    #    for c in format:
+    #        if c == '%':
+    #            if flag == 1:
+    #                print('%')
+    #            flag = 1
+    #        elif flag == 1:
+    #            val = self.visit(ctx.children[4+2*var_index])
+    #            if c == 's' or c == 'c':
+    #                print(val)
+    #            elif c == 'd':
+    #                print(val)
+    #            flag = 0
+    #            var_index = var_index + 1
+    #        else:
+    #            print(c)
 
     def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
         pass

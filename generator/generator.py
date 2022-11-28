@@ -269,6 +269,19 @@ class LLVMGenerator(C2LLVMVisitor):
     def visitFreeStat(self, ctx: C2LLVMParser.FreeStatContext):
         pass  #TODO
 
+    def visitPrintfStat(self, ctx: C2LLVMParser.PrintfStatContext):
+        """
+        printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
+        """
+        text = ctx.STRING().getText()
+        str_len = len(parse_escape(text[1:-1]))
+        msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name='msg')
+        variable.initializer = msg
+        zero = ir.Constant(ir.types.IntType(32), 0)
+        msg = variable.gep((zero, zero))
+        self.builder.call(self.local_vars["printf"],(msg,))
+
     def visitBlock(self, ctx: C2LLVMParser.BlockContext):
         """
         block: whileBlock | ifBlock | elseBlock | elseifBlock;
@@ -465,31 +478,31 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
-    def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
-        #todo
-        #用printf打印变量值
-        #目前采用直接print的方法测试，因此在编译时就会输出
-        #最后会改成存到test.ll中
-        format = ctx.children[2].getText()
-        format = format[1:-1]
-        var_index = 0
-        flag = 0
-        self.builder
-        for c in format:
-            if c == '%':
-                if flag == 1:
-                    print('%')
-                flag = 1
-            elif flag == 1:
-                val = self.visit(ctx.children[4+2*var_index])
-                if c == 's' or c == 'c':
-                    print(val)
-                elif c == 'd':
-                    print(val)
-                flag = 0
-                var_index = var_index + 1
-            else:
-                print(c)
+    #def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
+    #    #todo
+    #    #用printf打印变量值
+    #    #目前采用直接print的方法测试，因此在编译时就会输出
+    #    #最后会改成存到test.ll中
+    #    format = ctx.children[2].getText()
+    #    format = format[1:-1]
+    #    var_index = 0
+    #    flag = 0
+    #    self.builder
+    #    for c in format:
+    #        if c == '%':
+    #            if flag == 1:
+    #                print('%')
+    #            flag = 1
+    #        elif flag == 1:
+    #            val = self.visit(ctx.children[4+2*var_index])
+    #            if c == 's' or c == 'c':
+    #                print(val)
+    #            elif c == 'd':
+    #                print(val)
+    #            flag = 0
+    #            var_index = var_index + 1
+    #        else:
+    #            print(c)
 
     def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
         pass

@@ -3,6 +3,6 @@
 
 
 int main() {
-    int k = 15;
-    return k - 3;
+    printf("asdasd\n");
+    return 0;
 }
