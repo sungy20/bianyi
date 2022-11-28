@@ -213,8 +213,9 @@ class LLVMGenerator(C2LLVMVisitor):
                     singleval = val.constant[i]
                     singleval = LLVMTypes.char(singleval)
                     singleval = LLVMTypes.cast_type(self.builder, vtype, singleval)
-                    addr = self.builder.gep(varp,[LLVMTypes.int(i),LLVMTypes.int(i)])
+                    addr = self.builder.gep(varp,[LLVMTypes.int(0),LLVMTypes.int(i)])
                     self.builder.store(singleval, addr)
+                # self.builder.bitcast(varp,LLVMTypes.get_pointer_type(vtype))   
                 self.local_vars[var] = varp
         elif len(ctx.children) == 4: #(expr|strvar|arrayvalue) = expr ;的情况
             if(ctx.StrVar()):
@@ -415,6 +416,14 @@ class LLVMGenerator(C2LLVMVisitor):
         function_name = ctx.StrVar().getText()
         if function_name in self.local_vars:
             function_var = self.local_vars[function_name]
+            if type(function_var) in [ir.Argument, ir.Function]:
+                pass
+            else:
+                if isinstance(function_var.type.pointee, ir.ArrayType) or isinstance(function_var.type.pointee, ir.IdentifiedStructType):
+                    zero = ir.Constant(LLVMTypes.int, 0)
+                    function_var = self.builder.gep(function_var, [zero, zero])
+                else:
+                    function_var = self.builder.load(function_var)
         else:
             # 报错，函数未声明
             raise SemanticError(ctx = ctx,msg ="undefined function_name"+function_name)
@@ -489,10 +498,10 @@ class LLVMGenerator(C2LLVMVisitor):
         varp = self.local_vars[var]
         index = self.visit(ctx.expr())
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
-        if isinstance(varp.type, ir.PointerType):
-            valp = self.builder.gep(varp, [index])
+        if isinstance(varp.type.pointee, ir.ArrayType):
+            valp = self.builder.gep(varp, [LLVMTypes.int(0),index])
         else:
-            valp = self.builder.gep(varp, [index,index])
+            valp = self.builder.gep(varp, [index])
         return valp
 
     def visitArray(self, ctx:C2LLVMParser.ArrayContext):
