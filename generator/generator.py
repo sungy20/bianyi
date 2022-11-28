@@ -219,7 +219,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     singleval = val.constant[i]
                     singleval = LLVMTypes.char(singleval)
                     singleval = LLVMTypes.cast_type(self.builder, vtype, singleval)
-                    addr = self.builder.gep(varp,[LLVMTypes.int(i),LLVMTypes.int(i)])
+                    addr = self.builder.gep(varp,[LLVMTypes.int(0),LLVMTypes.int(i)])
                     self.builder.store(singleval, addr)
                 self.local_vars[var] = varp
         elif len(ctx.children) == 4: #(expr|strvar|arrayvalue) = expr ;的情况
@@ -276,11 +276,17 @@ class LLVMGenerator(C2LLVMVisitor):
         text = ctx.STRING().getText()
         str_len = len(parse_escape(text[1:-1]))
         msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
-        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name='msg')
+        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
         variable.initializer = msg
         zero = ir.Constant(ir.types.IntType(32), 0)
         msg = variable.gep((zero, zero))
-        self.builder.call(self.local_vars["printf"],(msg,))
+        args = [msg]
+        for i in ctx.expr():
+            arg = self.visit(i)
+            if isinstance(arg.type,ir.ArrayType):
+                arg = self.local_vars[i.getText()]
+            args.append(arg)
+        self.builder.call(self.local_vars["printf"],args)
 
     def visitBlock(self, ctx: C2LLVMParser.BlockContext):
         """
@@ -362,7 +368,7 @@ class LLVMGenerator(C2LLVMVisitor):
     def visitExpr(self, ctx:C2LLVMParser.ExprContext):
         """
         expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
-        (StrVar | number | arrayValue | funcExpr | CHAR) operator expr ;
+              expr operator (StrVar | number | arrayValue | funcExpr | CHAR) ;
         operator: '+' | '-' | '*' | '/' | '->';
         :param ctx:
         :return: 表达式的值
