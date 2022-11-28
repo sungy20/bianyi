@@ -31,98 +31,104 @@ main.while_cond:
 main.while_body:
   %".22" = load i32, i32* %".15"
   %".23" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".22", i32 %".22"
-  %".24" = icmp ne i32 0, 0
-  br i1 %".24", label %"main.while_body.if", label %"main.while_body.endif"
+  %".24" = icmp eq i8* %".23", 0
+  %".25" = icmp ne i32 1, 0
+  br i1 %".25", label %"main.while_body.if", label %"main.while_body.endif"
 main.while_end:
-  %".31" = load i32, i32* %".15"
-  %".32" = sdiv i32 2, %".31"
-  %".33" = mul i32 2, %".32"
-  %".34" = load i32, i32* %".15"
-  %".35" = icmp ne i32 0, 0
-  br i1 %".35", label %"main.while_end.if", label %"main.while_end.else"
+  %".32" = load i32, i32* %".15"
+  %".33" = sdiv i32 2, %".32"
+  %".34" = mul i32 2, %".33"
+  %".35" = load i32, i32* %".15"
+  %".36" = icmp eq i32 %".34", %".35"
+  %".37" = icmp ne i32 1, 0
+  br i1 %".37", label %"main.while_end.if", label %"main.while_end.else"
 main.while_body.if:
   br label %"main.while_end"
 main.while_body.endif:
-  %".27" = load i32, i32* %".15"
-  %".28" = add i32 1, %".27"
-  store i32 %".28", i32* %".15"
+  %".28" = load i32, i32* %".15"
+  %".29" = add i32 1, %".28"
+  store i32 %".29", i32* %".15"
   br label %"main.while_cond"
 main.while_end.if:
-  %".37" = alloca i32
-  store i32 0, i32* %".37"
+  %".39" = alloca i32
+  store i32 0, i32* %".39"
   br label %"main.while_end.if.while_cond"
 main.while_end.else:
-  %".67" = alloca i32
-  store i32 0, i32* %".67"
+  %".71" = alloca i32
+  store i32 0, i32* %".71"
   br label %"main.while_end.else.while_cond"
 main.while_end.endif:
   ret i32 0
 main.while_end.if.while_cond:
-  %".40" = icmp ne i32 1, 0
-  br i1 %".40", label %"main.while_end.if.while_body", label %"main.while_end.if.while_end"
+  %".42" = icmp ne i32 1, 0
+  br i1 %".42", label %"main.while_end.if.while_body", label %"main.while_end.if.while_end"
 main.while_end.if.while_body:
-  %".42" = load i32, i32* %".37"
-  %".43" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".42", i32 %".42"
-  %".44" = load i32, i32* %".37"
-  %".45" = load i32, i32* %".15"
-  %".46" = sub i32 %".44", %".45"
-  %".47" = sub i32 1, %".46"
-  %".48" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".47", i32 %".47"
-  %".49" = icmp ne i32 1, 0
-  br i1 %".49", label %"main.while_end.if.while_body.if", label %"main.while_end.if.while_body.endif"
+  %".44" = load i32, i32* %".39"
+  %".45" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".44", i32 %".44"
+  %".46" = load i32, i32* %".39"
+  %".47" = load i32, i32* %".15"
+  %".48" = sub i32 %".46", %".47"
+  %".49" = sub i32 1, %".48"
+  %".50" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".49", i32 %".49"
+  %".51" = icmp ne i8* %".45", %".50"
+  %".52" = icmp ne i32 1, 0
+  br i1 %".52", label %"main.while_end.if.while_body.if", label %"main.while_end.if.while_body.endif"
 main.while_end.if.while_end:
   br label %"main.while_end.endif"
 main.while_end.if.while_body.if:
-  %".51" = load i32, i32* %".17"
-  ret i32 %".51"
+  %".54" = load i32, i32* %".17"
+  ret i32 %".54"
 main.while_end.if.while_body.endif:
-  %".53" = load i32, i32* %".37"
-  %".54" = load i32, i32* %".15"
-  %".55" = sdiv i32 2, %".54"
-  %".56" = sub i32 1, %".55"
-  %".57" = icmp ne i32 0, 0
-  br i1 %".57", label %"main.while_end.if.while_body.endif.if", label %"main.while_end.if.while_body.endif.endif"
+  %".56" = load i32, i32* %".39"
+  %".57" = load i32, i32* %".15"
+  %".58" = sdiv i32 2, %".57"
+  %".59" = sub i32 1, %".58"
+  %".60" = icmp eq i32 %".56", %".59"
+  %".61" = icmp ne i32 1, 0
+  br i1 %".61", label %"main.while_end.if.while_body.endif.if", label %"main.while_end.if.while_body.endif.endif"
 main.while_end.if.while_body.endif.if:
   store i32 1, i32* %".17"
-  %".60" = load i32, i32* %".17"
-  ret i32 %".60"
+  %".64" = load i32, i32* %".17"
+  ret i32 %".64"
 main.while_end.if.while_body.endif.endif:
-  %".62" = load i32, i32* %".37"
-  %".63" = add i32 1, %".62"
-  store i32 %".63", i32* %".37"
+  %".66" = load i32, i32* %".39"
+  %".67" = add i32 1, %".66"
+  store i32 %".67", i32* %".39"
   br label %"main.while_end.if.while_cond"
 main.while_end.else.while_cond:
-  %".70" = icmp ne i32 1, 0
-  br i1 %".70", label %"main.while_end.else.while_body", label %"main.while_end.else.while_end"
+  %".74" = icmp ne i32 1, 0
+  br i1 %".74", label %"main.while_end.else.while_body", label %"main.while_end.else.while_end"
 main.while_end.else.while_body:
-  %".72" = load i32, i32* %".67"
-  %".73" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".72", i32 %".72"
-  %".74" = load i32, i32* %".67"
-  %".75" = load i32, i32* %".15"
-  %".76" = sub i32 %".74", %".75"
-  %".77" = sub i32 1, %".76"
-  %".78" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".77", i32 %".77"
-  %".79" = icmp ne i32 1, 0
-  br i1 %".79", label %"main.while_end.else.while_body.if", label %"main.while_end.else.while_body.endif"
+  %".76" = load i32, i32* %".71"
+  %".77" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".76", i32 %".76"
+  %".78" = load i32, i32* %".71"
+  %".79" = load i32, i32* %".15"
+  %".80" = sub i32 %".78", %".79"
+  %".81" = sub i32 1, %".80"
+  %".82" = getelementptr [100 x i8], [100 x i8]* %".2", i32 %".81", i32 %".81"
+  %".83" = icmp ne i8* %".77", %".82"
+  %".84" = icmp ne i32 1, 0
+  br i1 %".84", label %"main.while_end.else.while_body.if", label %"main.while_end.else.while_body.endif"
 main.while_end.else.while_end:
   br label %"main.while_end.endif"
 main.while_end.else.while_body.if:
-  store i32 0, i32* %".17"
-  br label %"main.while_end.else.while_body.endif"
+  %".86" = load i32, i32* %".17"
+  ret i32 %".86"
 main.while_end.else.while_body.endif:
-  %".83" = load i32, i32* %".67"
-  %".84" = load i32, i32* %".15"
-  %".85" = sdiv i32 2, %".84"
-  %".86" = sub i32 1, %".85"
-  %".87" = icmp ne i32 0, 0
-  br i1 %".87", label %"main.while_end.else.while_body.endif.if", label %"main.while_end.else.while_body.endif.endif"
+  %".88" = load i32, i32* %".71"
+  %".89" = load i32, i32* %".15"
+  %".90" = sdiv i32 2, %".89"
+  %".91" = sub i32 1, %".90"
+  %".92" = icmp eq i32 %".88", %".91"
+  %".93" = icmp ne i32 1, 0
+  br i1 %".93", label %"main.while_end.else.while_body.endif.if", label %"main.while_end.else.while_body.endif.endif"
 main.while_end.else.while_body.endif.if:
   store i32 1, i32* %".17"
-  %".90" = load i32, i32* %".17"
-  ret i32 %".90"
+  %".96" = load i32, i32* %".17"
+  ret i32 %".96"
 main.while_end.else.while_body.endif.endif:
-  %".92" = load i32, i32* %".67"
-  %".93" = add i32 1, %".92"
-  store i32 %".93", i32* %".67"
+  %".98" = load i32, i32* %".71"
+  %".99" = add i32 1, %".98"
+  store i32 %".99", i32* %".71"
   br label %"main.while_end.else.while_cond"
 }

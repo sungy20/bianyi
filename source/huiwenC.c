@@ -25,7 +25,7 @@ int main() {
 		int j = 0;
 		while (1) {
 			if (str[j] != str[i - j - 1]) {
-				k = 0;
+				return k;
 			}
 			if (j == i / 2 - 1) {
 				k = 1;
