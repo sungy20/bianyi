@@ -1,33 +1,48 @@
 grammar C2LLVM;
 
-start : codeBlock* ;
+start: codeBlock*;
 
-codeBlock: include | structPack | function ;
+codeBlock: include | structPack | function;
 
-include : '#include' '<' StrVar '.' StrVar '>' ;
+include: '#include' '<' StrVar '.' StrVar '>';
 
 structPack: 'struct' StrVar '{' content '}' ';';
 
-function : varType StrVar '(' params ')' packcontent;
+function: varType StrVar '(' params ')' packcontent;
 
-params : param | param ',' params |;
+params: param | param ',' params |;
 
 // int a | int * a
 param: usualType StrVar;
 
-usualType: varType | pointerType ;
+usualType: varType | pointerType;
 
 pointerType: varType '*' | 'struct' StrVar '*' | StrVar '*';
 
-packcontent: (stat | block | ) | ('{' content '}');
+packcontent: (stat | block |) | ('{' content '}');
 
-content : (stat|block) content | (stat|block) | ;
+content: (stat | block) content |  (stat|block) | ;
 
-stat : declareStat | assignStat | breakStat | returnStat | freeStat | continueStat | (customFunc ';') | scanfStat | printfStat;
+stat:
+	declareStat
+	| assignStat
+	| breakStat
+	| returnStat
+	| freeStat
+	| continueStat
+	| (customFunc ';')
+	| scanfStat
+	| printfStat;
 
-declareStat: (usualType StrVar |  varType array) ';';
+declareStat: (usualType StrVar | varType array) ';';
 
-assignStat: (usualType StrVar | StrVar | arrayValue | expr | varType array) '=' expr ';';
+assignStat: (
+		usualType StrVar
+		| StrVar
+		| arrayValue
+		| expr
+		| varType array
+	) '=' expr ';';
 
 breakStat: 'break' ';';
 
@@ -41,24 +56,24 @@ scanfStat: 'scanf' '(' STRING (',' expr)+ ')' ';';
 
 printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
 
-expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
- expr operator (StrVar | number | arrayValue | funcExpr | CHAR) ;
+expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING)
+	| expr operator (StrVar | number | arrayValue | funcExpr | CHAR);
 
 arrayValue: StrVar '[' expr ']';
 
 array: StrVar '[' INT? ']';
 
-funcExpr:pre func| func;
+funcExpr: pre func | func;
 
-pre: '(' (varType | StrVar '*') ')' ;
+pre: '(' (varType | StrVar '*') ')';
 
-func: customFunc | mallocFunc ;
+func: customFunc | mallocFunc;
 
 customFunc: StrVar '(' actualParams ')';
 
-actualParams : actualParam | actualParam ',' actualParams |;
+actualParams: actualParam | actualParam ',' actualParams |;
 
-actualParam : expr ;
+actualParam: expr;
 
 mallocFunc: 'malloc' '(' 'sizeof' '(' StrVar ')' ')';
 
@@ -74,9 +89,18 @@ elseifBlock: 'else if' '(' condition ')' packcontent elseBlock?;
 
 condition: expr | '(' expr ')' logic condition | condition logic condition | '(' condition ')';
 
-logic: '&&' | '||' |  '==' | '!=' | '>' | '>=' | '<=' | '<' | '>';
+logic:
+	'&&'
+	| '||'
+	| '=='
+	| '!='
+	| '>'
+	| '>='
+	| '<='
+	| '<'
+	| '>';
 
-StrVar : [a-zA-Z][a-zA-Z0-9_]*;
+StrVar: [a-zA-Z][a-zA-Z0-9_]*;
 
 varType: 'int' | 'char' | 'struct';
 
@@ -86,16 +110,10 @@ number : ('+'|'-')?INT;
 
 INT: [0-9]+;
 
-CHAR : '\'' . '\'' ;
+CHAR: '\'' . '\'';
 
-STRING : '"' .*? '"' ;
+STRING: '"' .*? '"';
 
-Comment
-    :   '/*' .*? '*/'
-        -> skip
-    ;
+Comment: '/*' .*? '*/' -> skip;
 //空白部分
-WS
-    :   [ \t\r\n]+
-        -> skip
-    ;
+WS: [ \t\r\n]+ -> skip;

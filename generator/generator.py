@@ -4,9 +4,11 @@ from antlr_about.C2LLVMParser import C2LLVMParser
 import llvmlite.ir as ir
 from generator.types import LLVMTypes
 from generator.util import parse_escape
+from generator.errors import *
 
 class LLVMGenerator(C2LLVMVisitor):
-    def __init__(self):
+    def __init__(self,error_listener = AntlrErrorListener()):
+        self.error_listener = error_listener  #错误监听器
         self.module = ir.Module(name = 'C2LLVM')  #创建一个空模型
         self.local_vars = {}
         self.continue_block = None
@@ -66,7 +68,7 @@ class LLVMGenerator(C2LLVMVisitor):
         args_type, args_name = self.visit(ctx.params())
         function_type = ir.FunctionType(ret_type,(args_type))
         llvm_function = ir.Function(self.module, function_type, name=func_name)  #创建llvm函数
-        self.builder = ir.IRBuilder(llvm_function.append_basic_block(name=func_name))
+        self.builder = ir.IRBuilder(llvm_function.append_basic_block(name=func_name))#
 
         self.local_vars[func_name] = llvm_function
 
@@ -221,6 +223,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     singleval = LLVMTypes.cast_type(self.builder, vtype, singleval)
                     addr = self.builder.gep(varp,[LLVMTypes.int(0),LLVMTypes.int(i)])
                     self.builder.store(singleval, addr)
+                # self.builder.bitcast(varp,LLVMTypes.get_pointer_type(vtype))   
                 self.local_vars[var] = varp
         elif len(ctx.children) == 4: #(expr|strvar|arrayvalue) = expr ;的情况
             if(ctx.StrVar()):
@@ -260,8 +263,8 @@ class LLVMGenerator(C2LLVMVisitor):
             ret_val = self.builder.load(ret_val)
         converted_val = LLVMTypes.cast_type(
             self.builder, target_type=self.builder.function.type.pointee.return_type, value=ret_val)
-        print(self.module)
         self.builder.ret(converted_val)
+        print(self.module)
 
     def visitContinueStat(self, ctx:C2LLVMParser.ContinueStatContext):
         self.builder.branch(self.continue_block)
@@ -389,6 +392,10 @@ class LLVMGenerator(C2LLVMVisitor):
         elif ctx.arrayValue():  #数组情况
             retval = self.visit(ctx.arrayValue())
         elif ctx.funcExpr():  #函数情况，注意有强制类型转换
+            if len(ctx.children) == 2:
+                pass # TODO pre func
+            else: # func
+                retval = self.visit(ctx.children[0])
             pass
         elif ctx.CHAR():
             text = ctx.CHAR().getText()
@@ -429,6 +436,57 @@ class LLVMGenerator(C2LLVMVisitor):
         else:
             return retval
 
+    def visitCustomFunc(self, ctx: C2LLVMParser.CustomFuncContext):
+        """
+        customFunc: StrVar '(' actualParams ')' ;
+        :param ctx:
+        :return: 函数返回值
+        """
+        function_name = ctx.StrVar().getText()
+        if function_name in self.local_vars:
+            function_var = self.local_vars[function_name]
+            if type(function_var) in [ir.Argument, ir.Function]:
+                pass
+            else:
+                if isinstance(function_var.type.pointee, ir.ArrayType) or isinstance(function_var.type.pointee, ir.IdentifiedStructType):
+                    zero = ir.Constant(LLVMTypes.int, 0)
+                    function_var = self.builder.gep(function_var, [zero, zero])
+                else:
+                    function_var = self.builder.load(function_var)
+        else:
+            # 报错，函数未声明
+            raise SemanticError(ctx = ctx,msg ="undefined function_name"+function_name)
+        actualParams = self.visit(ctx.actualParams())
+        converted_args = [LLVMTypes.cast_type(self.builder, value=arg, target_type=callee_arg.type)
+                            for arg, callee_arg in zip(actualParams, function_var.args)]
+        if len(converted_args) < len(actualParams):  # 考虑变长参数
+            converted_args += actualParams[len(function_var.args):]
+        
+        return self.builder.call(function_var, converted_args)
+
+    def visitActualParams(self, ctx: C2LLVMParser.ActualParamsContext):
+        """
+        actualParams: actualParam | actualParam ',' actualParams |;
+        :param ctx:
+        :return: 返回变量表达式列表actual_arg_expr_list
+        """
+        actual_arg_expr_list = []
+        if ctx.children is None:
+            return actual_arg_expr_list
+        elif len(ctx.children) > 1:
+            actual_arg_expr_list = self.visit(ctx.actualParams())
+        actual_arg_expr = self.visit(ctx.actualParam())
+        actual_arg_expr_list.append(actual_arg_expr)
+        return actual_arg_expr_list
+
+    def visitActualParam(self, ctx: C2LLVMParser.ActualParamContext):
+        """
+        actualParam: expr
+        :param ctx:
+        :return 返回变量表达式
+        """
+        return self.visit(ctx.expr())
+
     def visitCondition(self, ctx: C2LLVMParser.ConditionContext):
         """
         condition: expr | '(' expr ')' logic condition | condition logic condition | '(' condition ')';
@@ -467,7 +525,10 @@ class LLVMGenerator(C2LLVMVisitor):
         varp = self.local_vars[var]
         index = self.visit(ctx.expr())
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
-        valp = self.builder.gep(varp, [index, index])
+        if isinstance(varp.type.pointee, ir.ArrayType):
+            valp = self.builder.gep(varp, [LLVMTypes.int(0),index])
+        else:
+            valp = self.builder.gep(varp, [index])
         return valp
 
 
