@@ -113,6 +113,8 @@ class LLVMTypes(object):
         elif cls._is_int(value.type) and cls._is_float(target_type):  #整数转浮点数
             return builder.sitofp(value, target_type)
         #TODO 下面的代码还没有想清楚
+        # elif isinstance(value.type, ir.types.IntType) and type(target_type) == ir.PointerType \
+
         elif type(value.type) == ir.ArrayType and type(target_type) == ir.PointerType \
                 and value.type.element == target_type.pointee:  #数组类型转成指针类型
             zero = ir.Constant(cls.int, 0)
