@@ -1,13 +1,14 @@
 
 /*#pragma warning(disable:4996)*/
 int main() {
-	int asd[10];
-	asd[0] = 5;
-	asd[1] = 8;
-	asd[2] = 4;
-	asd[3] = 9;
-	int n = 4;
+	int n;
+	scanf("%d", n);
 	int i = 0;
+	int asd[100];
+	while (i < n-1) {
+		scanf("%d,", asd[i]);
+	}
+	scanf("%d", asd[n - 1]);
 	while (i < n - 1) {
 		int j = i + 1;
 		while (j < n) {
@@ -20,6 +21,11 @@ int main() {
 		}
 		i = i + 1;
 	}
+	i = 0;
+	while (i < n - 1) {
+		printf("%d,", asd[i]);
+	}
+	printf("%d", asd[n - 1]);
 	return asd[3];
 }
 

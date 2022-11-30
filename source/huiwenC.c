@@ -1,7 +1,7 @@
 
 /*#pragma warning(disable:4996)*/
-int main() {
-	char str[100] = "12321";
+int huiwen(char* str) {
+	printf("%s\n",str);
 	int i = 0;  /*length of str*/
 	int k = 0;  /* 0 no 1 yes */
 	while (1) {
@@ -37,8 +37,16 @@ int main() {
 	return k;
 }
 
-/*int main() {
-	char str[100] = "12321";
+int main() {
+	char str[100];
+	scanf("%s", str);
+	printf("%s\n", str);
 	int res = huiwen(str);
+	if (res == 1) {
+		printf("True\n");
+	}
+	else {
+		printf("False\n");
+	}
 	return res;
-}*/
+}

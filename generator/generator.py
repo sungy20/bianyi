@@ -15,9 +15,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self.break_block = None
         self.emit_printf()
         self.emit_scanf()
-        self.chooseElse = 0
-        self.Blocks = []
-        self.depth = -1
+        self.msg = {}
 
     @staticmethod
     def match_rule(ctx, rule):
@@ -83,8 +81,6 @@ class LLVMGenerator(C2LLVMVisitor):
 
         self.continue_block = None
         self.break_block = None
-        self.Blocks.append(self.builder.block)
-        self.depth = self.depth+1
         self.visit(ctx.packcontent())
         # TODO补充函数没有return的情况
 
@@ -149,9 +145,6 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         packcontent: (stat | block | ) | ('{' content '}');
         """
-        if self.chooseElse == 1:
-            if self.builder.block not in self.Blocks:
-                self.Blocks.append(self.builder.block)
         if len(ctx.children) == 3:
             self.visit(ctx.content())
         elif len(ctx.children) == 1:
@@ -283,10 +276,14 @@ class LLVMGenerator(C2LLVMVisitor):
         printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
         """
         text = ctx.STRING().getText()
-        str_len = len(parse_escape(text[1:-1]))
-        msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
-        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
-        variable.initializer = msg
+        if text in self.msg:
+            variable = self.msg[text]
+        else:
+            str_len = len(parse_escape(text[1:-1]))
+            msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+            variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
+            variable.initializer = msg
+            self.msg[text] = variable
         zero = ir.Constant(ir.types.IntType(32), 0)
         msg = variable.gep((zero, zero))
         args = [msg]
@@ -302,10 +299,14 @@ class LLVMGenerator(C2LLVMVisitor):
         scanfStat: 'scanf' '(' STRING (',' expr)+ ')' ';';
         """
         text = ctx.STRING().getText()
-        str_len = len(parse_escape(text[1:-1]))
-        msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
-        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
-        variable.initializer = msg
+        if text in self.msg:
+            variable = self.msg[text]
+        else:
+            str_len = len(parse_escape(text[1:-1]))
+            msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+            variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
+            variable.initializer = msg
+            self.msg[text] = variable
         zero = ir.Constant(ir.types.IntType(32), 0)
         msg = variable.gep((zero, zero))
         args = [msg]
@@ -335,8 +336,6 @@ class LLVMGenerator(C2LLVMVisitor):
         cond_block = self.builder.append_basic_block(name=name_prefix+".while_cond")  # 条件判断语句块
         loop_block = self.builder.append_basic_block(name=name_prefix+".while_body")  # 循环语句块
         end_block = self.builder.append_basic_block(name=name_prefix+".while_end")    # 循环结束后的语句块
-        if loop_block not in self.Blocks:
-            self.Blocks.append(loop_block)
         
         # 保存原先的continue_block和break_block
         last_continue, last_break = self.continue_block, self.break_block
@@ -350,14 +349,11 @@ class LLVMGenerator(C2LLVMVisitor):
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         self.builder.cbranch(converted_cond_val, loop_block, end_block)   #第一参数为真，跳到loopblock
 
-        self.depth = self.depth +1
         self.builder.position_at_start(loop_block)  #这里是写loopblock的内容
         self.visit(ctx.packcontent())
         self.builder.branch(cond_block)
 
         # 恢复原先的continue_block和break_block
-        self.Blocks.pop()
-        self.depth = self.depth -1
         self.builder.position_at_start(end_block)
         self.continue_block = last_continue
         self.break_block = last_break
@@ -370,7 +366,6 @@ class LLVMGenerator(C2LLVMVisitor):
         #with self.builder.goto_block(self.Blocks[nowd]):
         #curblock = self.Blocks[-1]
         #self.builder.position_at_end(curblock)
-        self.chooseElse = 1
         cond_val = self.visit(ctx.condition())
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         if len(ctx.children) == 6:  # 存在else分支
@@ -382,8 +377,6 @@ class LLVMGenerator(C2LLVMVisitor):
         else:  # 只有if分支
             with self.builder.if_then(converted_cond_val):
                 self.visit(ctx.packcontent())
-        self.chooseElse = 0
-        self.Blocks.pop()
 
 
     def visitElseBlock(self, ctx: C2LLVMParser.ElseBlockContext):
