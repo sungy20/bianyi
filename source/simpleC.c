@@ -3,8 +3,8 @@
 
 
 int main() {
-    char i[100] = "asdasd";
-    int asd = 111415;
-    printf("asdasd%s%d\n",i,asd);
+    char i[100];
+    scanf("%s",i);
+    printf("%s\n", i);
     return 0;
 }
