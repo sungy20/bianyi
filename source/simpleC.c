@@ -6,9 +6,8 @@ int huiwen(char *str) {
 }
 
 int main() {
-    char i[100] = "asdasd";
-    int asd = 111415;
-    int res = huiwen(i);
-    printf("i[100]:%s;\nasd:%d;\nres:%d;\n",i,asd,res);
-    return res;
+    char i[100];
+    scanf("%s",i);
+    printf("%s\n", i);
+    return 0;
 }

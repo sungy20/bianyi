@@ -15,9 +15,8 @@ class LLVMGenerator(C2LLVMVisitor):
         self.continue_block = None
         self.break_block = None
         self.emit_printf()
-        self.chooseElse = 0
-        self.Blocks = []
-        self.depth = -1
+        self.emit_scanf()
+        self.msg = {}
 
     @staticmethod
     def match_rule(ctx, rule):
@@ -45,6 +44,11 @@ class LLVMGenerator(C2LLVMVisitor):
         printf_type = ir.FunctionType(LLVMTypes.int, (LLVMTypes.get_pointer_type(LLVMTypes.char),), var_arg=True)
         printf_func = ir.Function(self.module, printf_type, "printf")
         self.local_vars["printf"] = printf_func
+
+    def emit_scanf(self):
+        scanf_type = ir.FunctionType(ir.IntType(32), [LLVMTypes.get_pointer_type(LLVMTypes.char),], var_arg=True)
+        scanf_func = ir.Function(self.module, scanf_type, name="scanf")
+        self.local_vars["scanf"] = scanf_func
 
     def visitStart(self, ctx:C2LLVMParser.StartContext):
         for child in ctx.children:
@@ -85,8 +89,6 @@ class LLVMGenerator(C2LLVMVisitor):
 
         self.continue_block = None
         self.break_block = None
-        self.Blocks.append(self.builder.block)
-        self.depth = self.depth+1
         self.visit(ctx.packcontent())
         # TODO补充函数没有return的情况
 
@@ -152,9 +154,6 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         packcontent: (stat | block | ) | ('{' content '}');
         """
-        if self.chooseElse == 1:
-            if self.builder.block not in self.Blocks:
-                self.Blocks.append(self.builder.block)
         if len(ctx.children) == 3:
             self.visit(ctx.content())
         elif len(ctx.children) == 1:
@@ -249,13 +248,13 @@ class LLVMGenerator(C2LLVMVisitor):
                 self.builder.store(converted_val, varp)
                 #self.builder.store(LLVMTypes.int(1),valp)
             elif(ctx.arrayValue()):
-                valp = self.visit(ctx.arrayValue())
+                varp = self.visit(ctx.arrayValue())
                 val = self.visit(ctx.expr()[0])
                 if isinstance(val.type,ir.PointerType):
                     val = self.builder.load(val)
-                varType = valp.type.pointee
+                varType = varp.type.pointee
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
-                self.builder.store(converted_val,valp)
+                self.builder.store(converted_val,varp)
             else : #TODO expr = expr;情况
                 pass
         else:
@@ -287,10 +286,39 @@ class LLVMGenerator(C2LLVMVisitor):
         printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
         """
         text = ctx.STRING().getText()
-        str_len = len(parse_escape(text[1:-1]))
-        msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
-        variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
-        variable.initializer = msg
+        if text in self.msg:
+            variable = self.msg[text]
+        else:
+            str_len = len(parse_escape(text[1:-1]))
+            msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+            variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
+            variable.initializer = msg
+            self.msg[text] = variable
+        zero = ir.Constant(ir.types.IntType(32), 0)
+        msg = variable.gep((zero, zero))
+        args = [msg]
+        for i in ctx.expr():
+            arg = self.visit(i)
+            if isinstance(arg.type,ir.ArrayType):
+                arg = self.local_vars[i.getText()]
+            elif isinstance(arg.type,ir.PointerType):
+                arg = self.builder.load(arg)
+            args.append(arg)
+        self.builder.call(self.local_vars["printf"],args)
+
+    def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
+        """
+        scanfStat: 'scanf' '(' STRING (',' expr)+ ')' ';';
+        """
+        text = ctx.STRING().getText()
+        if text in self.msg:
+            variable = self.msg[text]
+        else:
+            str_len = len(parse_escape(text[1:-1]))
+            msg = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
+            variable = ir.GlobalVariable(self.builder.module, ir.ArrayType(LLVMTypes.char, str_len+1), name=text)
+            variable.initializer = msg
+            self.msg[text] = variable
         zero = ir.Constant(ir.types.IntType(32), 0)
         msg = variable.gep((zero, zero))
         args = [msg]
@@ -299,7 +327,7 @@ class LLVMGenerator(C2LLVMVisitor):
             if isinstance(arg.type,ir.ArrayType):
                 arg = self.local_vars[i.getText()]
             args.append(arg)
-        self.builder.call(self.local_vars["printf"],args)
+        self.builder.call(self.local_vars["scanf"],args)
 
     def visitBlock(self, ctx: C2LLVMParser.BlockContext):
         """
@@ -320,8 +348,6 @@ class LLVMGenerator(C2LLVMVisitor):
         cond_block = self.builder.append_basic_block(name=name_prefix+".while_cond")  # 条件判断语句块
         loop_block = self.builder.append_basic_block(name=name_prefix+".while_body")  # 循环语句块
         end_block = self.builder.append_basic_block(name=name_prefix+".while_end")    # 循环结束后的语句块
-        if loop_block not in self.Blocks:
-            self.Blocks.append(loop_block)
         
         # 保存原先的continue_block和break_block
         last_continue, last_break = self.continue_block, self.break_block
@@ -335,14 +361,11 @@ class LLVMGenerator(C2LLVMVisitor):
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         self.builder.cbranch(converted_cond_val, loop_block, end_block)   #第一参数为真，跳到loopblock
 
-        self.depth = self.depth +1
         self.builder.position_at_start(loop_block)  #这里是写loopblock的内容
         self.visit(ctx.packcontent())
         self.builder.branch(cond_block)
 
         # 恢复原先的continue_block和break_block
-        self.Blocks.pop()
-        self.depth = self.depth -1
         self.builder.position_at_start(end_block)
         self.continue_block = last_continue
         self.break_block = last_break
@@ -355,7 +378,6 @@ class LLVMGenerator(C2LLVMVisitor):
         #with self.builder.goto_block(self.Blocks[nowd]):
         #curblock = self.Blocks[-1]
         #self.builder.position_at_end(curblock)
-        self.chooseElse = 1
         cond_val = self.visit(ctx.condition())
         converted_cond_val = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.bool, value=cond_val)
         if len(ctx.children) == 6:  # 存在else分支
@@ -367,8 +389,6 @@ class LLVMGenerator(C2LLVMVisitor):
         else:  # 只有if分支
             with self.builder.if_then(converted_cond_val):
                 self.visit(ctx.packcontent())
-        self.chooseElse = 0
-        self.Blocks.pop()
 
 
     def visitElseBlock(self, ctx: C2LLVMParser.ElseBlockContext):
@@ -380,8 +400,9 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitExpr(self, ctx:C2LLVMParser.ExprContext):
         """
-        expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
-              expr operator (StrVar | number | arrayValue | funcExpr | CHAR) ;
+        expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING)
+	        | expr operator (StrVar | number | arrayValue | funcExpr | CHAR)
+	        | '&' StrVar;
         operator: '+' | '-' | '*' | '/' | '->';
         :param ctx:
         :return: 表达式的值
@@ -446,7 +467,12 @@ class LLVMGenerator(C2LLVMVisitor):
                 lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
                 retval = self.builder.icmp_signed("!=", lval, retval)
             return retval
-
+        elif len(ctx.children) == 2:
+            if ctx.StrVar():
+                text = ctx.StrVar().getText()
+                return self.local_vars[text]
+            else:
+                return self.visit(ctx.children[1])
         else:
             return retval
 
@@ -586,34 +612,6 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
-    #def visitPrintfStat(self, ctx:C2LLVMParser.PrintfStatContext):
-    #    #todo
-    #    #用printf打印变量值
-    #    #目前采用直接print的方法测试，因此在编译时就会输出
-    #    #最后会改成存到test.ll中
-    #    format = ctx.children[2].getText()
-    #    format = format[1:-1]
-    #    var_index = 0
-    #    flag = 0
-    #    self.builder
-    #    for c in format:
-    #        if c == '%':
-    #            if flag == 1:
-    #                print('%')
-    #            flag = 1
-    #        elif flag == 1:
-    #            val = self.visit(ctx.children[4+2*var_index])
-    #            if c == 's' or c == 'c':
-    #                print(val)
-    #            elif c == 'd':
-    #                print(val)
-    #            flag = 0
-    #            var_index = var_index + 1
-    #        else:
-    #            print(c)
-
-    def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
-        pass
 
     def save(self, filename):
         """保存到文件"""
