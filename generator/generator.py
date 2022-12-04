@@ -238,13 +238,13 @@ class LLVMGenerator(C2LLVMVisitor):
                 self.builder.store(converted_val, varp)
                 #self.builder.store(LLVMTypes.int(1),valp)
             elif(ctx.arrayValue()):
-                valp = self.visit(ctx.arrayValue())
+                varp = self.visit(ctx.arrayValue())
                 val = self.visit(ctx.expr()[0])
                 if isinstance(val.type,ir.PointerType):
                     val = self.builder.load(val)
-                varType = valp.type.pointee
+                varType = varp.type.pointee
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
-                self.builder.store(converted_val,valp)
+                self.builder.store(converted_val,varp)
             else : #TODO expr = expr;情况
                 pass
         else:
@@ -291,6 +291,8 @@ class LLVMGenerator(C2LLVMVisitor):
             arg = self.visit(i)
             if isinstance(arg.type,ir.ArrayType):
                 arg = self.local_vars[i.getText()]
+            elif isinstance(arg.type,ir.PointerType):
+                arg = self.builder.load(arg)
             args.append(arg)
         self.builder.call(self.local_vars["printf"],args)
 
@@ -388,8 +390,9 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitExpr(self, ctx:C2LLVMParser.ExprContext):
         """
-        expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING) |
-              expr operator (StrVar | number | arrayValue | funcExpr | CHAR) ;
+        expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING)
+	        | expr operator (StrVar | number | arrayValue | funcExpr | CHAR)
+	        | '&' StrVar;
         operator: '+' | '-' | '*' | '/' | '->';
         :param ctx:
         :return: 表达式的值
@@ -450,7 +453,12 @@ class LLVMGenerator(C2LLVMVisitor):
                 lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
                 retval = self.builder.icmp_signed("!=", lval, retval)
             return retval
-
+        elif len(ctx.children) == 2:
+            if ctx.StrVar():
+                text = ctx.StrVar().getText()
+                return self.local_vars[text]
+            else:
+                return self.visit(ctx.children[1])
         else:
             return retval
 

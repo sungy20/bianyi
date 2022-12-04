@@ -57,7 +57,8 @@ scanfStat: 'scanf' '(' STRING (',' expr)+ ')' ';';
 printfStat: 'printf' '(' STRING (',' expr)* ')' ';';
 
 expr: (StrVar | number | arrayValue | funcExpr | CHAR | STRING)
-	| expr operator (StrVar | number | arrayValue | funcExpr | CHAR);
+	| expr operator (StrVar | number | arrayValue | funcExpr | CHAR)
+	| '&' (StrVar | arrayValue);
 
 arrayValue: StrVar '[' expr ']';
 
