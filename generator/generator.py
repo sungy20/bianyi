@@ -612,6 +612,8 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
+    def visitStructPack(self, ctx:C2LLVMParser.StructPackContext):
+        pass
 
     def save(self, filename):
         """保存到文件"""

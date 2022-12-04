@@ -9,12 +9,16 @@ class LLVMGenerator(C2LLVMVisitor):
     def __init__(self):
         self.module = ir.Module(name = 'C2LLVM')  #创建一个空模型
         self.local_vars = {}
+        self.structs = {}
+        self.struct_sizes = {}
         self.continue_block = None
         self.break_block = None
         self.emit_printf()
         self.chooseElse = 0
         self.Blocks = []
         self.depth = -1
+        self._inside_struct_ = 0
+        self._current_struct_ = None
 
     @staticmethod
     def match_rule(ctx, rule):
@@ -171,23 +175,43 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         declareStat: (usualType StrVar |  varType array) ';';
         """
-        if len(ctx.children) == 3: #正常情况
-            if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #TODO 声明数组
-                vtype = LLVMTypes.str2type[ctx.varType().getText()]
-                var, size = self.visit(ctx.array())
-                if size == None:
-                    print("declare need size")
-                varp = LLVMTypes.get_array_type(vtype,size.constant)
-                varp = self.builder.alloca(varp,size)
-                self.local_vars[var] = varp
-            else: #TODO 声明单个变量
-                varType = self.visit(ctx.usualType())
-                var = ctx.StrVar().getText()
-                # 申请栈空间，并返回对应的指针
-                varp = self.builder.alloca(varType);
-                self.local_vars[var] = varp
+        if not self._inside_struct_:
+            if len(ctx.children) == 3: #正常情况
+                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #TODO 声明数组
+                    vtype = LLVMTypes.str2type[ctx.varType().getText()]
+                    var, size = self.visit(ctx.array())
+                    if size == None:
+                        print("declare need size")
+                    varp = LLVMTypes.get_array_type(vtype,size.constant)
+                    varp = self.builder.alloca(varp,size)
+                    self.local_vars[var] = varp
+                else: #TODO 声明单个变量
+                    varType = self.visit(ctx.usualType())
+                    var = ctx.StrVar().getText()
+                    # 申请栈空间，并返回对应的指针
+                    varp = self.builder.alloca(varType);
+                    self.local_vars[var] = varp
+            else:
+                pass
         else:
-            pass
+            if len(ctx.children) == 3:  # 正常情况
+                #TODO 在结构体中声明需要：1.记录不同的声明指针位置 2.计算结构体总大小
+                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):
+                    vtype = LLVMTypes.str2type[ctx.varType().getText()]
+                    var, size = self.visit(ctx.array())
+                    if size == None:
+                        print("declare need size")
+                    varp = LLVMTypes.get_array_type(vtype, size.constant)
+                    varp = self.builder.alloca(varp, size)
+                    self.local_vars[var] = varp
+                else:  # TODO 声明单个变量
+                    varType = self.visit(ctx.usualType())
+                    var = ctx.StrVar().getText()
+                    # 申请栈空间，并返回对应的指针
+                    varp = self.builder.alloca(varType);
+                    self.local_vars[var] = varp
+            else:
+                pass
 
     def visitAssignStat(self, ctx: C2LLVMParser.AssignStatContext):
         """
@@ -506,6 +530,13 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
         pass
+
+    def visitStructPack(self, ctx:C2LLVMParser.StructPackContext):
+        self._inside_struct_ = 1
+        self._current_struct_ = ctx.children[1]
+        self.structs[ctx.children[1]] = {}
+        self.visitContent(ctx)
+        self._inside_struct_ = 0
 
     def save(self, filename):
         """保存到文件"""
