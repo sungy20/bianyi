@@ -40,12 +40,17 @@ int get_next(char *g_t, int *g_next)
 {
 	int g_k = -1;
 	int g_j = 0;
-	g_next[g_j] = g_k;
+	g_next[0] = -1;
     int g_tlen = strlen(g_t);
+    printf("g_tlen = %d\n", g_tlen);
 	while (g_j < g_tlen)
 	{
 		if ((g_k == -1) || (g_t[g_j] == g_t[g_k]))
 		{
+            printf("g_k = %d\n", g_k);
+            printf("g_j = %d\n", g_j);
+            printf("g_t[g_j] = %d\n", g_t[g_j]);
+            printf("g_t[g_k] = %d\n", g_t[g_k]);
 			g_k = g_k + 1;
 			g_j = g_j + 1;
 			g_next[g_j] = g_k;
@@ -74,17 +79,21 @@ int main()
 {
 	char s[100] = "ababcabcacbab";
 	char t[100] = "abcac";
+    printf("t%d%s\n", 2, t[0]);
+    char *s_ptr = s;
+    char *t_ptr = t;
 	int pos = 0;
 	int index = 0;
     int next[32] = "\0";
 
 
 	printf("\nKMP test:\n");
-	get_next(t, next);
-    int tlen = strlen(t);
+	get_next(t_ptr, next);
+    int tlen = strlen(t_ptr);
+
 	print_next(next, tlen);
 
-	index = match(s, t, pos, next);
+	index = match(s_ptr, t_ptr, pos, next);
 	printf("index = %d\n", index);
 	return 0;
 }
