@@ -11,8 +11,8 @@ def makeTree(filename):
     parser = C2LLVMParser(stream)
     tree = parser.start()
     return tree
- 
-name = 'source\huiwenC.c'
+
+name = 'source\calculateC.c'
 if __name__ == '__main__':
     tree = makeTree(name)
     gen = LLVMGenerator()

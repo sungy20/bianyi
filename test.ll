@@ -9,5 +9,5 @@ declare i32 @"scanf"(i8* %".1", ...)
 define i32 @"main"() 
 {
 main:
-  ret i32 0
+  ret i32 1
 }

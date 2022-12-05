@@ -1,6 +1,11 @@
+struct node{
+    char c;
+    int n;
+};
 int main(){
-    int t = 1;
-    int * k = &t;
-    t = t + 1;
-    return *k;
+    struct node a;
+    struct node * b = &a;
+    /*b->n = 1;
+    return b->n;*/
+    return 1;
 }

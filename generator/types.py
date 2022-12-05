@@ -9,7 +9,7 @@ class LLVMTypes(object):
     bool = ir.IntType(1)
     float = ir.FloatType()
     double = ir.DoubleType()
-    void = ir. VoidType()
+    void = ir.VoidType()
     str2type = {
         "int": int,
         "short": short,
