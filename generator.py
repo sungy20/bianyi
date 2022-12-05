@@ -10,7 +10,13 @@ class LLVMGenerator(C2LLVMVisitor):
         self.module = ir.Module(name = 'C2LLVM')  #创建一个空模型
         self.local_vars = {}
         self.structs = {}
+        #key为struct名的LLVM值，value为index字典
+        #index字典的key为变量名的python字符串，value为对应偏移量的LLVM值
+        self.struct_entry_types = {}
+        # key为struct名的LLVM值，value为size字典
+        # index字典的key为变量名的python字符串，value为对应的type的LLVM值
         self.struct_sizes = {}
+        #key为struct名的LLVM值，value为结构体大小的LLVM值
         self.continue_block = None
         self.break_block = None
         self.emit_printf()
@@ -139,8 +145,8 @@ class LLVMGenerator(C2LLVMVisitor):
         if ctx.varType():
             return LLVMTypes.str2type[ctx.varType().getText()]
         else:
-            pass #TODO sssssssssssssssss结构体
-        pass
+            return LLVMTypes.char #结构体直接用单字节指针，方便index，需要读取某个数据时再作类型转换
+        return LLVMTypes.char
 
     def visitPackcontent(self, ctx: C2LLVMParser.PackcontentContext):
         """
@@ -213,6 +219,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     elif (vtype == LLVMTypes.str2type["char"]):
                         current_variable_size = LLVMTypes.int(1)
                     current_variable_size = self.builder.mul(current_variable_size, size)
+                    self.struct_entry_types[self._current_struct_][var] = vtype#???
                     self._current_struct_size_ = self.builder.add(self._current_struct_size_, current_variable_size)
                 else:  #声明单个变量
                     vtype = self.visit(ctx.usualType())
@@ -223,6 +230,7 @@ class LLVMGenerator(C2LLVMVisitor):
                         current_variable_size = LLVMTypes.int(4)
                     elif (vtype == LLVMTypes.str2type["char"]):
                         current_variable_size = LLVMTypes.int(1)
+                    self.struct_entry_types[self._current_struct_][var] = vtype
                     self._current_struct_size_ = self.builder.add(self._current_struct_size_, current_variable_size)
             else:
                 pass
@@ -456,6 +464,10 @@ class LLVMGenerator(C2LLVMVisitor):
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
                 lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
                 retval = self.builder.icmp_signed("!=", lval, retval)
+            elif op == '->':
+                struct_name = self.structs[lval]
+                index = struct_name[retval.getText()]
+                retval = self.builder.gep(lval, [index, index])
             return retval
 
         else:
@@ -553,6 +565,11 @@ class LLVMGenerator(C2LLVMVisitor):
         self._inside_struct_ = 0
         self.struct_sizes[ctx.children[1]] = self._current_struct_size_
         self._current_struct_size_ = LLVMTypes.int(0)
+
+    def visitMallocFunc(self, ctx:C2LLVMParser.MallocFuncContext):
+        size = self.visit(ctx.children[2])
+        varp = self.builder.alloca(LLVMTypes.char, size)
+        return varp
 
     def save(self, filename):
         """保存到文件"""
