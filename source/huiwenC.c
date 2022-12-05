@@ -2,8 +2,8 @@
 /*#pragma warning(disable:4996)*/
 int huiwen(char* str) {
 	printf("%s\n",str);
-	int i = 0;  /*length of str*/
-	int k = 0;  /* 0 no 1 yes */
+	int i = 0;  
+	int k = 0;  
 	while (1) {
 		if (str[i] == 0) break;
 		i = i + 1;

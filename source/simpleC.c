@@ -1,9 +1,6 @@
 
 /*#pragma warning(disable:4996)*/
 
-int huiwen(char *str) {
-	return str[2];
-}
 
 int main() {
     char i[100];
