@@ -77,7 +77,9 @@ class LLVMGenerator(C2LLVMVisitor):
         self.local_vars[func_name] = llvm_function
 
         for arg_name, llvm_arg in zip(args_name, llvm_function.args):
-            self.local_vars[arg_name] = llvm_arg
+            varp = self.builder.alloca(llvm_arg.type)
+            self.builder.store(llvm_arg,varp)
+            self.local_vars[arg_name] = varp
 
         self.continue_block = None
         self.break_block = None
@@ -494,16 +496,21 @@ class LLVMGenerator(C2LLVMVisitor):
             # 报错，函数未声明
             raise SemanticError(ctx = ctx,msg ="undefined function_name"+function_name)
         actualParams = self.visit(ctx.actualParams()) #拿到传入参数的地址，然后我拿值，传进函数
-        args_val=[]
-        for arg in actualParams:
-            if isinstance(arg.type,ir.PointerType):
-                args_val.append(self.builder.load(arg))
-            else:
-                args_val.append(arg)
+        # args_val=[]
+        # for arg in actualParams:
+        #     if isinstance(arg.type,ir.PointerType):
+        #         args_val.append(self.builder.load(arg))
+        #     else:
+        #         args_val.append(arg)
         converted_args = []
-        for arg, callee_arg in zip(args_val, function_var.args):
-            if isinstance(arg.type,ir.ArrayType):
-                arg = LLVMTypes.cast_type(self.builder, value=arg, target_type=callee_arg.type)
+        for argp, callee_arg in zip(actualParams, function_var.args):
+            if isinstance(argp.type,ir.PointerType):
+                arg = self.builder.load(argp)
+                if isinstance(arg.type,ir.ArrayType):
+                    # arg = LLVMTypes.cast_type(self.builder, value=arg, target_type=callee_arg.type)
+                    arg = self.builder.gep(argp,[LLVMTypes.int(0),LLVMTypes.int(0)])
+                else: 
+                    pass
             converted_args.append(arg)
             # if isinstance(arg.type,ir.types.IntType):
             #     # varpp = self.builder.alloca(varp.type)
@@ -529,8 +536,8 @@ class LLVMGenerator(C2LLVMVisitor):
         elif len(ctx.children) > 1:
             actual_arg_expr_list = self.visit(ctx.actualParams())
         actual_arg_expr = self.visit(ctx.actualParam())
-        if isinstance(actual_arg_expr.type,ir.PointerType):
-            actual_arg_expr = self.builder.load(actual_arg_expr)
+        # if isinstance(actual_arg_expr.type,ir.PointerType):
+        #     actual_arg_expr = self.builder.load(actual_arg_expr)
         actual_arg_expr_list.append(actual_arg_expr)
         return actual_arg_expr_list
 
@@ -561,14 +568,15 @@ class LLVMGenerator(C2LLVMVisitor):
                     lval = self.builder.load(lval)
                 if isinstance(rval.type, ir.PointerType):
                     rval = self.builder.load(rval)
-                #if logic == '==':
-                #    boolRetVal = self.builder.icmp_signed("==", lval, rval)
-                #    return boolRetVal
-                #elif logic == '!=':
-                #    boolRetVal = self.builder.icmp_signed("!=", lval, rval)
-                #    return boolRetVal
-                boolRetVal = self.builder.icmp_signed(logic, lval, rval)
+                if logic == "&&":
+                    boolRetVal = self.builder.and_(lval, rval)
+                elif logic == "||":
+                    boolRetVal = self.builder.or_(lval, rval)
+                else:
+                    boolRetVal = self.builder.icmp_signed(logic, lval, rval)
                 return boolRetVal
+            else:
+                return self.visit(ctx.children[1])
 
         # TODO补充长度为5时情况
 
@@ -585,7 +593,9 @@ class LLVMGenerator(C2LLVMVisitor):
         if isinstance(varp.type.pointee, ir.ArrayType):
             valp = self.builder.gep(varp, [LLVMTypes.int(0),index])
         else:
-            valp = self.builder.gep(varp, [index])
+            valp = self.builder.load(varp)
+            if isinstance(valp.type, ir.PointerType):
+                valp = self.builder.gep(valp, [index])
         return valp
 
 

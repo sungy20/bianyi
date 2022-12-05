@@ -75,14 +75,14 @@ int print_next(int *p_next, int p_n)
 
 int main()
 {
-	char s[100] = "ababcabcacbab";
+	char s[100] = "ababcdabcacbab";
 	char t[100] = "abcac";
     printf("t:%s\n",  t);
     char *s_ptr = s;
     char *t_ptr = t;
 
 	printf("\nKMP test:\n");
-	int next[32] = "\0";
+	int next[32];
 	get_next(t_ptr, next);
 
     int tlen = strlen(t_ptr);

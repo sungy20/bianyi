@@ -12,7 +12,7 @@ int change(int* casd,int cs_n) {
 	
 	print(casd,cs_n);
 	casd[2] = 101;
-	printf("--------change change asd[2]:%d;n:%d\n", casd,cs_n);
+	printf("--------change change asd[2]:%x;n:%d\n", casd,cs_n);
 	print(casd,cs_n);
 	
 	return 0;
@@ -20,14 +20,14 @@ int change(int* casd,int cs_n) {
 
 
 int sort(int* asd,int s_n) {
-	printf("=================in sort asd:%d;n:%d\n", asd,s_n);
+	printf("=================in sort asd:%x;n:%d\n", asd,s_n);
 	print(asd,s_n);
 	asd[1] = 10;
-	printf("=================sort change asd[1]:%d;n:%d\n", asd,s_n);
+	printf("=================sort change asd[1]:%x;n:%d\n", asd,s_n);
 	print(asd,s_n);
 	change(asd,s_n);
 	
-	printf("=================out change int sort asd:%d;n:%d\n", asd,s_n);
+	printf("=================out change int sort asd:%x;n:%d\n", asd,s_n);
 	print(asd,s_n);
 	return 0;
 }
@@ -38,7 +38,7 @@ int main() {
 	printf("n:%xd\n", n);
 	int i = 0;
 	int asd[100];
-	int ptr = &asd[0];
+	int* ptr = &asd[0];
 	printf("&asd[0]:%x\n", ptr);
 
 	while (i < n - 1) {

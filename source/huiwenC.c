@@ -48,12 +48,12 @@ int main() {
 	int i = 10;
 	printf(" i:%d\n", i);
 	printf(" &i:%d\n", &i);
-	// int res = huiwen(str);
-	// if (res == 1) {
-	// 	printf("True\n");
-	// }
-	// else {
-	// 	printf("False\n");
-	// }
-	return 0;
+	int res = huiwen(str);
+	if (res == 1) {
+		printf("True\n");
+	}
+	else {
+		printf("False\n");
+	}
+	return res;
 }
