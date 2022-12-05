@@ -40,13 +40,20 @@ int huiwen(char* str) {
 int main() {
 	char str[100];
 	scanf("%s", str);
-	printf("%s\n", str);
-	int res = huiwen(str);
-	if (res == 1) {
-		printf("True\n");
-	}
-	else {
-		printf("False\n");
-	}
-	return res;
+	printf(" str:%s\n", str);
+	printf(" &str:%d\n", &str);
+	char* array = str;
+	printf(" array:%s\n", array);
+	printf(" &array:%d\n", &array);
+	int i = 10;
+	printf(" i:%d\n", i);
+	printf(" &i:%d\n", &i);
+	// int res = huiwen(str);
+	// if (res == 1) {
+	// 	printf("True\n");
+	// }
+	// else {
+	// 	printf("False\n");
+	// }
+	return 0;
 }

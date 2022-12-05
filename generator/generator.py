@@ -209,8 +209,8 @@ class LLVMGenerator(C2LLVMVisitor):
                 varType = self.visit(ctx.usualType())
                 var = ctx.StrVar().getText()
                 val = self.visit(ctx.expr()[0])
-                # if isinstance(val.type,ir.PointerType):
-                #     val = self.builder.load(val)
+                if isinstance(val.type,ir.PointerType):
+                    val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  #将val转换为varType类型
                 #申请栈空间，并返回对应的指针
                 varp = self.builder.alloca(varType);
@@ -412,11 +412,11 @@ class LLVMGenerator(C2LLVMVisitor):
             text = ctx.StrVar().getText()
             if text in self.local_vars:
                 varp = self.local_vars[text]
-                if isinstance(varp.type, ir.PointerType):
-                    # 字符指针得返回字符指针
-                    retval = self.builder.load(varp)
-                else:
-                    retval = varp
+                # if isinstance(varp.type, ir.PointerType):
+                #     # 字符指针得返回字符指针
+                #     retval = self.builder.load(varp)
+                # else:
+                retval = varp
             else:
                 # TODO raise exception
                 print(self.module.functions)
@@ -441,6 +441,10 @@ class LLVMGenerator(C2LLVMVisitor):
             retval = LLVMTypes.get_const_from_str(ir.ArrayType(LLVMTypes.char, str_len+1), const_value=text)
         if len(ctx.children) == 3:  #需要判断运算符号以及运算对象是常量还是变量
             lval = self.visit(ctx.expr()) #seems actually it's lval
+            if isinstance(lval.type,ir.PointerType):
+                lval = self.builder.load(lval)
+            if isinstance(retval.type,ir.PointerType):
+                retval = self.builder.load(retval)
             op = ctx.operator().getText()
             if op == '+':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
@@ -497,14 +501,14 @@ class LLVMGenerator(C2LLVMVisitor):
             # 报错，函数未声明
             raise SemanticError(ctx = ctx,msg ="undefined function_name"+function_name)
         actualParams = self.visit(ctx.actualParams()) #拿到传入参数的地址，然后我拿值，传进函数
-        # args_val=[]
-        # for arg in actualParams:
-        #     if isinstance(arg.type,ir.PointerType):
-        #         args_val.append(self.builder.load(arg))
-        #     else:
-        #         args_val.append(arg)
+        args_val=[]
+        for arg in actualParams:
+            if isinstance(arg.type,ir.PointerType):
+                args_val.append(self.builder.load(arg))
+            else:
+                args_val.append(arg)
         converted_args = []
-        for arg, callee_arg in zip(actualParams, function_var.args):
+        for arg, callee_arg in zip(args_val, function_var.args):
             if isinstance(arg.type,ir.ArrayType):
                 arg = LLVMTypes.cast_type(self.builder, value=arg, target_type=callee_arg.type)
             converted_args.append(arg)
@@ -587,8 +591,8 @@ class LLVMGenerator(C2LLVMVisitor):
         var = ctx.StrVar().getText()
         varp = self.local_vars[var] # varp指向var的地址，var的值是str的地址
         index = self.visit(ctx.expr())
-        # if isinstance(index.type,ir.PointerType):
-        #     index = self.builder.load(index)
+        if isinstance(index.type,ir.PointerType):
+            index = self.builder.load(index)
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
         if isinstance(varp.type.pointee, ir.ArrayType):
             valp = self.builder.gep(varp, [LLVMTypes.int(0),index])

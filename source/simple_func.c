@@ -13,12 +13,6 @@ int get(char* j){
 int main(){
     
 	char res[100] = "048250";
-	int p_i = 0;
-	while (p_i < 5)
-	{
-		printf("res[%d] = %c\n", p_i, res[p_i]);
-        p_i = p_i + 1;
-	}
 	printf("res = %s\n", res);
 	char* test = res;
 	return get(test);
