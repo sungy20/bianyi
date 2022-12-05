@@ -19,6 +19,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self.depth = -1
         self._inside_struct_ = 0
         self._current_struct_ = None
+        self._current_struct_size_ = LLVMTypes.int(0)
 
     @staticmethod
     def match_rule(ctx, rule):
@@ -171,13 +172,18 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         self.visit(ctx.children[0])
 
-    def visitDeclareStat(self, ctx: C2LLVMParser.DeclareStatContext):  #TODO
+    def visitDeclareStat(self, ctx: C2LLVMParser.DeclareStatContext):
         """
         declareStat: (usualType StrVar |  varType array) ';';
         """
-        if not self._inside_struct_:
+        if ctx.children[0].getText() == "struct": #声明结构体对象
+            struct_type = self.visit(ctx.children[1])
+            struct_obj = ctx.children[2].getText()
+            varp = self.builder.alloca(LLVMTypes.char, self.struct_sizes[struct_type])
+            self.local_vars[struct_obj] = varp
+        elif not self._inside_struct_:
             if len(ctx.children) == 3: #正常情况
-                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #TODO 声明数组
+                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
                     var, size = self.visit(ctx.array())
                     if size == None:
@@ -185,31 +191,39 @@ class LLVMGenerator(C2LLVMVisitor):
                     varp = LLVMTypes.get_array_type(vtype,size.constant)
                     varp = self.builder.alloca(varp,size)
                     self.local_vars[var] = varp
-                else: #TODO 声明单个变量
+                else: #声明单个变量
                     varType = self.visit(ctx.usualType())
                     var = ctx.StrVar().getText()
                     # 申请栈空间，并返回对应的指针
-                    varp = self.builder.alloca(varType);
+                    varp = self.builder.alloca(varType)
                     self.local_vars[var] = varp
             else:
                 pass
         else:
             if len(ctx.children) == 3:  # 正常情况
-                #TODO 在结构体中声明需要：1.记录不同的声明指针位置 2.计算结构体总大小
-                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):
+                if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array): #声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
                     var, size = self.visit(ctx.array())
                     if size == None:
                         print("declare need size")
-                    varp = LLVMTypes.get_array_type(vtype, size.constant)
-                    varp = self.builder.alloca(varp, size)
-                    self.local_vars[var] = varp
-                else:  # TODO 声明单个变量
-                    varType = self.visit(ctx.usualType())
+                    self.structs[self._current_struct_][var] = self._current_struct_size_
+                    current_variable_size = LLVMTypes.int(0)
+                    if(vtype == LLVMTypes.str2type["int"]):
+                        current_variable_size = LLVMTypes.int(4)
+                    elif (vtype == LLVMTypes.str2type["char"]):
+                        current_variable_size = LLVMTypes.int(1)
+                    current_variable_size = self.builder.mul(current_variable_size, size)
+                    self._current_struct_size_ = self.builder.add(self._current_struct_size_, current_variable_size)
+                else:  #声明单个变量
+                    vtype = self.visit(ctx.usualType())
                     var = ctx.StrVar().getText()
-                    # 申请栈空间，并返回对应的指针
-                    varp = self.builder.alloca(varType);
-                    self.local_vars[var] = varp
+                    self.structs[self._current_struct_][var] = self._current_struct_size_
+                    current_variable_size = LLVMTypes.int(0)
+                    if (vtype == LLVMTypes.str2type["int"]):
+                        current_variable_size = LLVMTypes.int(4)
+                    elif (vtype == LLVMTypes.str2type["char"]):
+                        current_variable_size = LLVMTypes.int(1)
+                    self._current_struct_size_ = self.builder.add(self._current_struct_size_, current_variable_size)
             else:
                 pass
 
@@ -266,7 +280,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     val = self.builder.load(val)
                 varType = valp.type.pointee
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
-                self.builder.store(converted_val,valp)
+                self.builder.store(converted_val, valp)
             else : #TODO expr = expr;情况
                 pass
         else:
@@ -291,7 +305,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self.builder.branch(self.continue_block)
 
     def visitFreeStat(self, ctx: C2LLVMParser.FreeStatContext):
-        pass  #TODO
+        pass
 
     def visitPrintfStat(self, ctx: C2LLVMParser.PrintfStatContext):
         """
@@ -434,7 +448,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
                 lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
                 retval = self.builder.sub(lval, retval)
-            elif op == '==':  # TODO 其他运算符
+            elif op == '==':
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=retval)
                 lval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=lval)  # 将两个值都转换为int
                 retval = self.builder.icmp_signed("==", lval, retval)  # retval是LLVM的bool值
@@ -537,6 +551,8 @@ class LLVMGenerator(C2LLVMVisitor):
         self.structs[ctx.children[1]] = {}
         self.visitContent(ctx)
         self._inside_struct_ = 0
+        self.struct_sizes[ctx.children[1]] = self._current_struct_size_
+        self._current_struct_size_ = LLVMTypes.int(0)
 
     def save(self, filename):
         """保存到文件"""
