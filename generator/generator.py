@@ -11,13 +11,13 @@ class LLVMGenerator(C2LLVMVisitor):
         self.module = ir.Module(name='C2LLVM')  # 创建一个空模型
         self.local_vars = {}
         self.structs = {}
-        # key为struct名的LLVM值，value为index字典
+        # key为struct名的python字符串，value为index字典
         # index字典的key为变量名的python字符串，value为对应偏移量的LLVM值
         self.struct_entry_types = {}
-        # key为struct名的LLVM值，value为size字典
+        # key为struct名的python字符串，value为size字典
         # index字典的key为变量名的python字符串，value为对应的type的LLVM值
         self.struct_sizes = {}
-        # key为struct名的LLVM值，value为结构体大小的LLVM值
+        # key为struct名的python字符串，value为结构体大小的LLVM值
         self.continue_block = None
         self.break_block = None
         self.emit_printf()
@@ -78,7 +78,9 @@ class LLVMGenerator(C2LLVMVisitor):
         self.local_vars[func_name] = llvm_function
 
         for arg_name, llvm_arg in zip(args_name, llvm_function.args):
-            self.local_vars[arg_name] = llvm_arg
+            varp = self.builder.alloca(llvm_arg.type)
+            self.builder.store(llvm_arg,varp)
+            self.local_vars[arg_name] = varp
 
         self.continue_block = None
         self.break_block = None
@@ -141,12 +143,7 @@ class LLVMGenerator(C2LLVMVisitor):
         if ctx.varType():
             return LLVMTypes.str2type[ctx.varType().getText()]
         else:
-            type_list = []
-            varType = self.visit(ctx.children[1])
-            keys = self.struct_entry_types[varType].keys()
-            for key in keys:
-                type_list.append(self.struct_entry_types[varType][key])
-            return ir.LiteralStructType(type_list)
+            return LLVMTypes.char
         return LLVMTypes.char
 
     def visitPackcontent(self, ctx: C2LLVMParser.PackcontentContext):
@@ -185,15 +182,15 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         if ctx.children[0].getText() == "struct":  # 声明结构体对象
             # TODO 目前不支持声明数组
-            struct_type = self.visit(ctx.children[1])
+            struct_type = ctx.children[1].getText()
             struct_obj = ctx.children[2].getText()
             size_lookup = self.struct_sizes
-            varp = self.builder.alloca(LLVMTypes.char, size_lookup[struct_type])
+            size = size_lookup[struct_type]
+            varp = self.builder.alloca(LLVMTypes.char, size)
             type_list = []
             keys = self.struct_entry_types[struct_type].keys()
             for key in keys:
                 type_list.append(self.struct_entry_types[struct_type][key])
-            varp = LLVMTypes.cast_type(self.builder, ir.LiteralStructType(type_list), varp)
             self.local_vars[struct_obj] = varp
         elif not self._inside_struct_:
             if len(ctx.children) == 3:  # 正常情况
@@ -263,11 +260,11 @@ class LLVMGenerator(C2LLVMVisitor):
                 varType = self.visit(ctx.usualType())
                 var = ctx.StrVar().getText()
                 val = self.visit(ctx.expr()[0])
-                if isinstance(val.type, ir.PointerType):
+                if isinstance(val.type, ir.PointerType):#TODO important 这个判断方法不完备
                     val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 # 申请栈空间，并返回对应的指针
-                varp = self.builder.alloca(varType);
+                varp = self.builder.alloca(varType)
                 # 将值存储到指定的位置
                 self.builder.store(converted_rhs, varp)
                 self.local_vars[var] = varp
@@ -435,7 +432,7 @@ class LLVMGenerator(C2LLVMVisitor):
             text = ctx.StrVar().getText()
             if text in self.local_vars:
                 varp = self.local_vars[text]
-                retval = self.builder.load(varp)
+                retval = varp
             else:
                 # TODO raise exception
                 print(self.module.functions)
@@ -579,7 +576,7 @@ class LLVMGenerator(C2LLVMVisitor):
         pass
 
     def visitStructPack(self, ctx: C2LLVMParser.StructPackContext):
-        children1 = self.visit(ctx.children[1])
+        children1 = ctx.children[1].getText()
         self._inside_struct_ = 1
         self._current_struct_ = children1
         self.structs[children1] = {}
