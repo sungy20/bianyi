@@ -116,5 +116,7 @@ CHAR: '\'' . '\'';
 STRING: '"' .*? '"';
 
 Comment: '/*' .*? '*/' -> skip;
+
+LineComment : '//' ~[\r\n]* -> skip; 
 //空白部分
 WS: [ \t\r\n]+ -> skip;

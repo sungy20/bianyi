@@ -7,8 +7,7 @@ declare i32 @"printf"(i8* %".1", ...)
 define i32 @"main"() 
 {
 main:
-  %".2" = alloca i8, i32 5
-  %".3" = alloca i8*
-  store i8* %".2", i8** %".3"
+  %".2" = alloca i32
+  store i32 0, i32* %".2"
   ret i32 1
 }

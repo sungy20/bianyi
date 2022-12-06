@@ -3,7 +3,8 @@ struct node{
     int n;
 };
 int main(){
-    int b = 0;
-    int * a = &b;
-    return a;
+    struct node a;
+    struct node * b = &a;
+    b->n = 2;
+    return 1;
 }
