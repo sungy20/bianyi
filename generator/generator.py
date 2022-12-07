@@ -181,17 +181,13 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         declareStat: (usualType StrVar |  varType array) ';';
         """
-        if ctx.children[0].getText() == "struct":  # 声明结构体对象
+        if ctx.children[0].getText() == "struct" and not self._inside_struct_:  # 声明结构体对象
             # TODO 目前不支持声明数组
             struct_type = ctx.children[1].getText()
             struct_obj = ctx.children[2].getText()
             size_lookup = self.struct_sizes
             size = size_lookup[struct_type]
             varp = self.builder.alloca(LLVMTypes.char, size)
-            type_list = []
-            keys = self.struct_entry_types[struct_type].keys()
-            for key in keys:
-                type_list.append(self.struct_entry_types[struct_type][key])
             self.local_vars[struct_obj] = varp
             self.struct_objects[struct_type].append(struct_obj)
         elif not self._inside_struct_:
@@ -212,7 +208,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     self.local_vars[var] = varp
             else:
                 pass
-        else:
+        elif ctx.children[0].getText() != "struct": #结构体内声明正常变量
             if len(ctx.children) == 3:  # 正常情况
                 if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):  # 声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
@@ -230,7 +226,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     self._current_struct_size_ = LLVMTypes.int(self._current_struct_size_.constant + current_variable_size.constant)
                 else:  # 声明单个变量
                     vtype = self.visit(ctx.usualType())
-                    var = ctx.children[2].getText()
+                    var = ctx.children[1].getText()
                     self.structs[self._current_struct_][var] = self._current_struct_size_
                     current_variable_size = LLVMTypes.int(0)
                     if vtype == LLVMTypes.str2type["int"] or vtype.is_pointer:
@@ -240,7 +236,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     self.struct_entry_types[self._current_struct_][var] = vtype
                     self._current_struct_size_ = LLVMTypes.int(self._current_struct_size_.constant + current_variable_size.constant)
             else:
-                pass
+                print("结构体定义内声明结构体成员，尚未完成！")
 
     def visitAssignStat(self, ctx: C2LLVMParser.AssignStatContext):
         """
@@ -257,6 +253,12 @@ class LLVMGenerator(C2LLVMVisitor):
                 varp = LLVMTypes.cast_type(self.builder, LLVMTypes.get_pointer_type(val.type), varp)
                 self.builder.store(val, varp)
         """
+        children3 = ctx.children[3].getText()
+        expr = children3.strip("&")
+        isStruct = 0
+        structName = self.getStructNameByVarName(expr)
+        if not (structName is None):
+            isStruct = 1
         if len(ctx.children) == 5:  # usualType StrVar = expr ;的情况
             if ctx.usualType():  # 单个变量的情况
                 varType = self.visit(ctx.usualType())
@@ -269,10 +271,12 @@ class LLVMGenerator(C2LLVMVisitor):
                         val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 # 申请栈空间，并返回对应的指针
-                varp = self.builder.alloca(varType);
+                varp = self.builder.alloca(varType)
                 # 将值存储到指定的位置
                 self.builder.store(converted_rhs, varp)
                 self.local_vars[var] = varp
+                if isStruct and not (var in self.struct_objects[structName]):
+                    self.struct_objects[structName].append(var)
             else:  # 数组的情况
                 vtype = LLVMTypes.str2type[ctx.varType().getText()]
                 var, size = self.visit(ctx.children[1])
@@ -531,13 +535,18 @@ class LLVMGenerator(C2LLVMVisitor):
             elif op == '->':
                 varName = ctx.children[0].getText()
                 memberName = ctx.children[2].getText()
-                struct_name = self.getStuctNameByVarName(varName)
+                struct_name = self.getStructNameByVarName(varName)
                 index = self.structs[struct_name][memberName]
+                type_name = self.struct_entry_types[struct_name][memberName]
                 varp = self.local_vars[varName]
                 retval = self.builder.gep(varp, [index, index])
+                k = 1
+                print(k)
+                """
                 type_name = self.struct_entry_types[struct_name][memberName]
                 retval = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.get_pointer_type(type_name),
-                                             value=retval)
+                                             value=retval)#ERROR!!!
+                """
             return retval
         elif len(ctx.children) == 2:
             if ctx.StrVar():
@@ -685,11 +694,12 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
-    def getStuctNameByVarName(self, varName):
+    def getStructNameByVarName(self, varName):
         keys = self.struct_objects.keys()
         for key in keys:
-            if self.struct_objects[key] == varName:
+            if varName in self.struct_objects[key]:
                 return key
+        return None
 
     def visitStructPack(self, ctx: C2LLVMParser.StructPackContext):
         children1 = ctx.children[1].getText()
