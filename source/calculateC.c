@@ -6,5 +6,5 @@ int main(){
     struct node a;
     struct node * b = &a;
     b->n = 2;
-    return 1;
+    return b->n;
 }
