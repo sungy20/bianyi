@@ -84,7 +84,7 @@ class LLVMGenerator(C2LLVMVisitor):
 
         for arg_name, llvm_arg in zip(args_name, llvm_function.args):
             varp = self.builder.alloca(llvm_arg.type)
-            self.builder.store(llvm_arg,varp)
+            self.builder.store(llvm_arg, varp)
             self.local_vars[arg_name] = varp
 
         self.continue_block = None
@@ -324,7 +324,8 @@ class LLVMGenerator(C2LLVMVisitor):
         self.builder.branch(self.continue_block)
 
     def visitFreeStat(self, ctx: C2LLVMParser.FreeStatContext):
-        pass  #TODO
+        pass
+        #TODO
 
     def visitPrintfStat(self, ctx: C2LLVMParser.PrintfStatContext):
         """
@@ -472,7 +473,13 @@ class LLVMGenerator(C2LLVMVisitor):
             retval = self.visit(ctx.arrayValue())
         elif ctx.funcExpr():  #函数情况，注意有强制类型转换
             if len(ctx.children) == 2:
-                pass # TODO pre func
+                convertedType = self.visit(ctx.children[0]) #转换后类型
+                val = self.visit(ctx.children[1])
+                if isinstance(convertedType, ir.PointerType):
+                    val = self.builder.bitcast(val, convertedType)
+                else:
+                    val = LLVMTypes.cast_type(self.builder, convertedType, val)
+                retval = val
             else: # func
                 retval = self.visit(ctx.children[0])
         elif ctx.CHAR():
@@ -673,8 +680,23 @@ class LLVMGenerator(C2LLVMVisitor):
         else:#TODO 不定长数组(也可以不做)，形如char i[]="hi"
             return None, None
 
+    def visitPre(self, ctx:C2LLVMParser.PreContext):
+        """
+        pre: '(' StrVar '*'? ')'
+        return: StrVar -> type
+        """
+        typeName = ctx.children[1].getText()
+        varType = self.global_context.get_identified_type(typeName)
+        if not varType:
+            varType = LLVMTypes.str2type(typeName)
+        if len(ctx.children) == 4:#指针类型转换
+            return LLVMTypes.get_pointer_type(varType)
+        elif len(ctx.children) == 3:#正常类型转换
+            return varType
+
     def visitStructPack(self, ctx: C2LLVMParser.StructPackContext):
         children1 = ctx.children[1].getText()
+        new_struct = self.global_context.get_identified_type(children1)
         self._inside_struct_ = 1
         self._current_struct_ = children1
         self.structs[children1] = {}
@@ -683,7 +705,6 @@ class LLVMGenerator(C2LLVMVisitor):
         self._inside_struct_ = 0
         self.struct_sizes[children1] = self._current_struct_size_
         self._current_struct_size_ = LLVMTypes.int(0)
-        new_struct = self.global_context.get_identified_type(children1)
         values = self.struct_entry_types[children1].values()
         new_struct.set_body(*values)
 

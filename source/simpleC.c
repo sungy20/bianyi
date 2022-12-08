@@ -6,7 +6,7 @@ struct Node
 
 struct LinkStack
 {
-	Node* top;
+	struct Node* top;
 	int count;
 };
 
@@ -154,6 +154,6 @@ int cal(char* a) {
 }
 
 int main(){
-    char a[100] = "2+2*(2+2)";
+    char a[100] = "15/3+2*(4-2)";
     return cal(a);
 }
