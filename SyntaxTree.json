@@ -1,0 +1,251 @@
+{
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "get",
+            "params": [
+                "usualType": "int",
+                "StrVar": f,
+                "usualType": "int",
+                "StrVar": e,
+            ],
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "returnStat": {
+                            "expr": {
+                                "StrVar": "e",
+                            },
+                        },
+                    },
+                    "content": {},
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "main",
+            "params": [],
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "AssignStat": {
+                            "usualType": "int",
+                            "StrVar": "b",
+                            "expr": {
+                                "number": "1",
+                            },
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "AssignStat": {
+                                "usualType": "int*",
+                                "pointerType": "int",
+                                "StrVar": "a",
+                                "expr": {
+                                    "StrVar": "b",
+                                    "StrVar": "b",
+                                },
+                            },
+                        },
+                        "content": {
+                            "stat": {
+                                "printfStat": {
+                                    "STRING": ""&b:%x\n"",
+                                    "expr": {
+                                        "StrVar": "b",
+                                        "StrVar": "b",
+                                    },
+                                },
+                            },
+                            "content": {
+                                "stat": {
+                                    "printfStat": {
+                                        "STRING": ""a:%x\n"",
+                                        "expr": {
+                                            "StrVar": "a",
+                                        },
+                                    },
+                                },
+                                "content": {
+                                    "stat": {
+                                        "AssignStat": {
+                                            "usualType": "int*",
+                                            "pointerType": "int",
+                                            "StrVar": "c",
+                                            "expr": {
+                                                "StrVar": "a",
+                                            },
+                                        },
+                                    },
+                                    "content": {
+                                        "stat": {
+                                            "printfStat": {
+                                                "STRING": ""c:%x\n"",
+                                                "expr": {
+                                                    "StrVar": "c",
+                                                },
+                                            },
+                                        },
+                                        "content": {
+                                            "Block": {
+                                                "ifBlock": {
+                                                    "condition": {
+                                                        "condition": {
+                                                            "expr": {
+                                                                "StrVar": "b",
+                                                            },
+                                                        },
+                                                        "logic": ">",
+                                                        "condition": {
+                                                            "expr": {
+                                                                "number": "0",
+                                                            },
+                                                        },
+                                                    },
+                                                    "packcontent": {
+                                                        "content": {
+                                                            "stat": {
+                                                                "AssignStat": {
+                                                                    "StrVar": "b",
+                                                                    "expr": {
+                                                                        "number": "1",
+                                                                        "expr": {
+                                                                            "StrVar": "b",
+                                                                        },
+                                                                        "op": "-",
+                                                                    },
+                                                                },
+                                                            },
+                                                            "content": {},
+                                                        },
+                                                    },
+                                                    "elseBlock": {
+                                                        "packcontent": {
+                                                            "content": {
+                                                                "stat": {
+                                                                    "AssignStat": {
+                                                                        "StrVar": "b",
+                                                                        "expr": {
+                                                                            "number": "1",
+                                                                            "expr": {
+                                                                                "StrVar": "b",
+                                                                            },
+                                                                            "op": "+",
+                                                                        },
+                                                                    },
+                                                                },
+                                                                "content": {},
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            "content": {
+                                                "Block": {
+                                                    "whileBlock": {
+                                                        "condition": {
+                                                            "condition": {
+                                                                "expr": {
+                                                                    "StrVar": "b",
+                                                                },
+                                                            },
+                                                            "logic": ">",
+                                                            "condition": {
+                                                                "expr": {
+                                                                    "number": "0",
+                                                                },
+                                                            },
+                                                        },
+                                                        "packcontent": {
+                                                            "content": {
+                                                                "stat": {
+                                                                    "AssignStat": {
+                                                                        "StrVar": "b",
+                                                                        "expr": {
+                                                                            "number": "1",
+                                                                            "expr": {
+                                                                                "StrVar": "b",
+                                                                            },
+                                                                            "op": "-",
+                                                                        },
+                                                                    },
+                                                                },
+                                                                "content": {},
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                                "content": {
+                                                    "stat": {
+                                                        "declareStat": {
+                                                            "varType": "char",
+                                                            "array": {
+                                                                "StrVar": "str",
+                                                                "size": "100",
+                                                            },
+                                                        },
+                                                    },
+                                                    "content": {
+                                                        "stat": {
+                                                            "AssignStat": {
+                                                                "usualType": "int",
+                                                                "StrVar": "d",
+                                                                "expr": {
+                                                                    "arrayValue": {
+                                                                        "StrVar": "str",
+                                                                        "expr": {
+                                                                            "number": "0",
+                                                                        },
+                                                                    },
+                                                                },
+                                                            },
+                                                        },
+                                                        "content": {
+                                                            "stat": {
+                                                                "customFunc": {
+                                                                    "StrVar": "get",
+                                                                    "actualParams": {
+                                                                        "actualParams": {
+                                                                            "actualParam": {
+                                                                                "expr": {
+                                                                                    "StrVar": "d",
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                        "actualParam": {
+                                                                            "expr": {
+                                                                                "StrVar": "b",
+                                                                            },
+                                                                        },
+                                                                    },
+                                                                },
+                                                            },
+                                                            "content": {
+                                                                "stat": {
+                                                                    "returnStat": {
+                                                                        "expr": {
+                                                                            "number": "0",
+                                                                        },
+                                                                    },
+                                                                },
+                                                                "content": {},
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+},

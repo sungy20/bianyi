@@ -12,9 +12,10 @@ def makeTree(filename):
     tree = parser.start()
     return tree
  
-name = 'source\\huiwenC.c'
+name = 'source\\makejson.c'
 if __name__ == '__main__':
     tree = makeTree(name)
     gen = LLVMGenerator()
     gen.visit(tree)
     gen.save("test.ll")
+    gen.saveJSON("SyntaxTree.json")
