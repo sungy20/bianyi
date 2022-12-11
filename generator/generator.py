@@ -78,9 +78,9 @@ class LLVMGenerator(C2LLVMVisitor):
         self.str = self.str + '"returnType":' + '"' + ctx.varType().getText() + '",'
         func_name = ctx.StrVar().getText()
         self.str = self.str + '"funcName":' + '"' + ctx.StrVar().getText() + '",'
-        self.str = self.str + '"params":['
+        self.str = self.str + '"params":{'
         args_type, args_name = self.visit(ctx.params())
-        self.str = self.str + '],'
+        self.str = self.str + '},'
         function_type = ir.FunctionType(ret_type,(args_type))
         llvm_function = ir.Function(self.module, function_type, name=func_name)  #创建llvm函数
         self.builder = ir.IRBuilder(llvm_function.append_basic_block(name=func_name))#
@@ -106,15 +106,18 @@ class LLVMGenerator(C2LLVMVisitor):
         :param ctx:
         :return: 返回变量名字列表arg_names和变量类型列表arg_types
         """
+        self.str = self.str + '"params":{'
         arg_names = []
         arg_types = []
         if ctx.children is None:
+            self.str = self.str + '},'
             return arg_types, arg_names
         elif len(ctx.children) > 1:
             arg_types, arg_names = self.visit(ctx.params())
         arg_type, arg_name = self.visit(ctx.param())
         arg_names.append(arg_name)
         arg_types.append(arg_type)
+        self.str = self.str + '},'
         return arg_types, arg_names
 
     def visitParam(self, ctx:C2LLVMParser.ParamContext):
@@ -123,9 +126,11 @@ class LLVMGenerator(C2LLVMVisitor):
         :param ctx:
         :return: 声明变量的名字和类型
         """
+        self.str = self.str + '"param":{'
         arg_type = self.visit(ctx.usualType())
         arg_name = ctx.StrVar().getText()
-        self.str = self.str + '"StrVar": ' + ctx.StrVar().getText() + ','
+        self.str = self.str + '"StrVar":" ' + ctx.StrVar().getText() + '",'
+        self.str = self.str + '},'
         return arg_type, arg_name
 
     def visitUsualType(self, ctx:C2LLVMParser.UsualTypeContext):

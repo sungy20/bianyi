@@ -3,12 +3,20 @@
         "function": {
             "returnType": "int",
             "funcName": "get",
-            "params": [
-                "usualType": "int",
-                "StrVar": f,
-                "usualType": "int",
-                "StrVar": e,
-            ],
+            "params": {
+                "params": {
+                    "params": {
+                        "param": {
+                            "usualType": "int",
+                            "StrVar": " f",
+                        },
+                    },
+                    "param": {
+                        "usualType": "int",
+                        "StrVar": " e",
+                    },
+                },
+            },
             "packcontent": {
                 "content": {
                     "stat": {
@@ -27,7 +35,9 @@
         "function": {
             "returnType": "int",
             "funcName": "main",
-            "params": [],
+            "params": {
+                "params": {},
+            },
             "packcontent": {
                 "content": {
                     "stat": {
