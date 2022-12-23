@@ -256,9 +256,12 @@ class LLVMGenerator(C2LLVMVisitor):
                 if ctx.expr()[0].children[0].getText() == '&':
                     pass
                 else:
-                    if isinstance(val.type, ir.PointerType):
+                    if isinstance(val.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
                         val = self.builder.load(val)
-                converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
+                if isinstance(val.type, ir.IdentifiedStructType) or isinstance(varType, ir.IdentifiedStructType):
+                    converted_rhs = val
+                else:
+                    converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 # 申请栈空间，并返回对应的指针
                 varp = self.builder.alloca(varType)
                 # 将值存储到指定的位置
@@ -287,28 +290,36 @@ class LLVMGenerator(C2LLVMVisitor):
                 varp = self.local_vars[var]
                 varType = varp.type.pointee
                 valp = self.visit(ctx.children[2])
-                if isinstance(valp.type, ir.PointerType):
+                if isinstance(valp.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
                     val = self.builder.load(valp)
                 else:
                     val = valp
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
+                if converted_val is None:
+                    converted_val = val
                 self.builder.store(converted_val, varp)
                 # self.builder.store(LLVMTypes.int(1),valp)
             elif (ctx.arrayValue()):
                 valp = self.visit(ctx.arrayValue())
                 val = self.visit(ctx.expr()[0])
-                if isinstance(val.type, ir.PointerType):
-                    val = self.builder.load(val)
                 varType = valp.type.pointee
+                if isinstance(val.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
+                    val = self.builder.load(val)
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
+                if converted_val is None:
+                    converted_val = val
                 self.builder.store(converted_val, valp)
             else:
                 valp = self.visit(ctx.children[0])
                 varType = valp.type.pointee
                 val = self.visit(ctx.children[2])
+                if isinstance(val.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
+                    val = self.builder.load(val)
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
+                if converted_val is None:
+                    converted_val = val
                 self.builder.store(converted_val, valp)
-                print('running here')
+                print("yes")
         else:
             pass
 
@@ -746,8 +757,8 @@ class LLVMGenerator(C2LLVMVisitor):
         varType = self.global_context.get_identified_type(typeName)
         size = self.getTypeSize(varType)
         size = LLVMTypes.int(size)
-        # varp = self.builder.alloca(LLVMTypes.char, size)
-        return size
+        varp = self.builder.alloca(LLVMTypes.char, size)
+        return varp
 
     def visitFunc(self, ctx: C2LLVMParser.FuncContext):
         return self.visit(ctx.children[0])
@@ -757,11 +768,13 @@ class LLVMGenerator(C2LLVMVisitor):
         pre func
         目前只实现了malloc,因为它是唯一的funcexpr
         """
-        varType = self.visit(ctx.children[0])
-        size = self.visit(ctx.children[1])
-        assert self.getTypeSize(varType.pointee) == size.constant
-        varp = self.builder.alloca(varType)
-        return varp
+        if len(ctx.children) == 2:  # 有类型转换pre
+            varType = self.visit(ctx.children[0])
+            varp = self.visit(ctx.children[1])
+            varp = self.builder.bitcast(varp, varType)
+            return varp
+        else:
+            return self.visit(ctx.children[0])
 
     def save(self, filename):
         """保存到文件"""
