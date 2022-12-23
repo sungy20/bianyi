@@ -130,7 +130,9 @@ class LLVMGenerator(C2LLVMVisitor):
         if self.match_rule(ctx.children[0], C2LLVMParser.RULE_pointerType):
             # 指针类型
             pt = ctx.pointerType()
-            return LLVMTypes.get_pointer_type(self.visit(pt)) 
+            var_tp = self.visit(pt)
+            pointer_tp = LLVMTypes.get_pointer_type(var_tp)
+            return pointer_tp
         elif self.match_texts(ctx, LLVMTypes.str2type.keys()):
             # 'int' | 'char' | 'struct'
             return LLVMTypes.str2type[ctx.getText()]   #TODO: sssssssssssss结构体
@@ -143,11 +145,15 @@ class LLVMGenerator(C2LLVMVisitor):
         pointerType: varType '*' | 'struct' StrVar '*' | StrVar '*';
         return:指针对应类型
         """
+        returnType = LLVMTypes.char
         if ctx.varType():
-            return LLVMTypes.str2type[ctx.varType().getText()]
+            returnType = LLVMTypes.str2type[ctx.varType().getText()]
         else:
-            return self.global_context.get_identified_type(ctx.children[1].getText())
-        return LLVMTypes.char
+            struct_name = ctx.children[0].getText()
+            if struct_name == 'struct':
+                struct_name = ctx.children[1].getText()
+            returnType = self.global_context.get_identified_type(struct_name)
+        return returnType
 
     def visitPackcontent(self, ctx: C2LLVMParser.PackcontentContext):
         """
@@ -302,6 +308,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 val = self.visit(ctx.children[2])
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
                 self.builder.store(converted_val, valp)
+                print('running here')
         else:
             pass
 
@@ -708,9 +715,52 @@ class LLVMGenerator(C2LLVMVisitor):
         values = self.struct_entry_types[children1].values()
         new_struct.set_body(*values)
 
+    def getTypeSize(self, llvm_type):
+        """
+        输入：llvm_type
+        输出：其size的python值
+        """
+        if isinstance(llvm_type, ir.PointerType) or llvm_type == LLVMTypes.int:
+            return 4
+        elif llvm_type == LLVMTypes.char:
+            return 1
+        elif isinstance(llvm_type, ir.ArrayType):
+            print("数组类型大小计算尚未实现！以后有需要再开发！")
+            total_size = 0
+            for i in llvm_type.elements:
+                total_size = total_size + self.getTypeSize(i)
+            return total_size
+        elif isinstance(llvm_type, ir.IdentifiedStructType):
+            total_size = 0
+            for i in llvm_type.elements:
+                total_size = total_size + self.getTypeSize(i)
+            return total_size
+
     def visitMallocFunc(self, ctx: C2LLVMParser.MallocFuncContext):
-        size = self.visit(ctx.children[2])
-        varp = self.builder.alloca(LLVMTypes.char, size)
+        """
+        'malloc' '(' 'sizeof' '(' StrVar ')' ')'
+        StrVar is name of an identified_struct
+        return：LLVM size of StrVar struct
+        """
+        typeName = ctx.children[4].getText()
+        varType = self.global_context.get_identified_type(typeName)
+        size = self.getTypeSize(varType)
+        size = LLVMTypes.int(size)
+        # varp = self.builder.alloca(LLVMTypes.char, size)
+        return size
+
+    def visitFunc(self, ctx: C2LLVMParser.FuncContext):
+        return self.visit(ctx.children[0])
+
+    def visitFuncExpr(self, ctx: C2LLVMParser.FuncExprContext):
+        """
+        pre func
+        目前只实现了malloc,因为它是唯一的funcexpr
+        """
+        varType = self.visit(ctx.children[0])
+        size = self.visit(ctx.children[1])
+        assert self.getTypeSize(varType.pointee) == size.constant
+        varp = self.builder.alloca(varType)
         return varp
 
     def save(self, filename):

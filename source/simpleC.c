@@ -27,7 +27,7 @@ int Push(LinkStack* S, int e)
 		return -1;
 	}
 
-	Node* p = (Node*)malloc(8);
+	Node* p = (Node*)malloc(sizeof(Node));
 	if (p == 0)
 	{
 		return -1;
@@ -85,7 +85,7 @@ int cal(char* a) {
 	int tmp = 0;
 	int j;
 
-	num = (LinkStack*)malloc(8);
+	num = (LinkStack*)malloc(sizeof(LinkStack));
 	if (num == 0)
 	{
 		return -1;
@@ -94,7 +94,7 @@ int cal(char* a) {
 	num->top = 0;
 	num->count = 0;
 
-	opt = (LinkStack*)malloc(8);
+	opt = (LinkStack*)malloc(sizeof(LinkStack));
 	if (opt == 0)
 	{
 		return -1;
