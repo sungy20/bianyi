@@ -47,27 +47,24 @@ int GetTop(LinkStack* S)
 	{
 		return -1;
 	}
-	return S->top->data;
+	Node * temp = S->top;
+	return temp->data;
 }
 
 int Priority(char ch)
 {
-	if (ch == '(')return 3;
-	else if (ch == '*')return 2;
-	else if (ch == '/')return 2;
-	else if (ch == '+')return 1;
-	else if (ch == '-')return 1;
-	else return 0;
+    int retval = 0;
+	if (ch == '(')retval = 3;
+	if (ch == '*')retval = 2;
+	if (ch == '/')retval = 2;
+	if (ch == '+')retval = 1;
+	if (ch == '-')retval = 1;
+	return retval;
 }
 
 int Pop(LinkStack* S)
 {
 	int e;
-
-	if (S->top == 0)
-	{
-		return -1;
-	}
 
 	Node* p = S->top;
 	e = p->data;
@@ -86,21 +83,9 @@ int cal(char* a) {
 	int j;
 
 	num = (LinkStack*)malloc(sizeof(LinkStack));
-	if (num == 0)
-	{
-		return -1;
-	}
-
-	num->top = 0;
 	num->count = 0;
 
 	opt = (LinkStack*)malloc(sizeof(LinkStack));
-	if (opt == 0)
-	{
-		return -1;
-	}
-
-	opt->top = 0;
 	opt->count = 0;
 
 	while (a[i] != 0 || EmptyStack(opt) != 1)
