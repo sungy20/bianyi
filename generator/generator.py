@@ -182,6 +182,18 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         self.visit(ctx.children[0])
 
+    def depthOfPointer(self, p):
+        depth = 0
+        while isinstance(p, ir.PointerType):
+            depth += 1
+            p = p.pointee
+        return depth
+
+    def aCouldBeStoredInB(self, a, b):
+        if self.depthOfPointer(a) - self.depthOfPointer(b) == -1:
+            return True
+        return False
+
     def visitDeclareStat(self, ctx: C2LLVMParser.DeclareStatContext):  #TODO
         """
         declareStat: (usualType StrVar |  varType array) ';';
@@ -205,7 +217,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     self.local_vars[var] = varp
                 else:  # 声明单个变量
                     varType = self.visit(ctx.usualType())
-                    var = ctx.StrVar().getText()
+                    var = ctx.children[1].getText()
                     # 申请栈空间，并返回对应的指针
                     varp = self.builder.alloca(varType)
                     self.local_vars[var] = varp
@@ -253,17 +265,16 @@ class LLVMGenerator(C2LLVMVisitor):
                 varType = self.visit(ctx.usualType())
                 var = ctx.StrVar().getText()
                 val = self.visit(ctx.expr()[0])
+                # 申请栈空间，并返回对应的指针
+                varp = self.builder.alloca(varType)
                 if ctx.expr()[0].children[0].getText() == '&':
                     pass
                 else:
-                    if isinstance(val.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
+                    if not self.aCouldBeStoredInB(val.type, varp.type):
                         val = self.builder.load(val)
-                if isinstance(val.type, ir.IdentifiedStructType) or isinstance(varType, ir.IdentifiedStructType):
+                converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
+                if converted_rhs is None:
                     converted_rhs = val
-                else:
-                    converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
-                # 申请栈空间，并返回对应的指针
-                varp = self.builder.alloca(varType)
                 # 将值存储到指定的位置
                 self.builder.store(converted_rhs, varp)
                 self.local_vars[var] = varp
@@ -285,7 +296,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 # self.builder.bitcast(varp,LLVMTypes.get_pointer_type(vtype))   
                 self.local_vars[var] = varp
         elif len(ctx.children) == 4:  # (expr|strvar|arrayvalue) = expr ;的情况
-            if (ctx.StrVar()):
+            if ctx.StrVar():
                 var = ctx.children[0].getText()
                 varp = self.local_vars[var]
                 varType = varp.type.pointee
@@ -311,15 +322,14 @@ class LLVMGenerator(C2LLVMVisitor):
                 self.builder.store(converted_val, valp)
             else:
                 valp = self.visit(ctx.children[0])
-                varType = valp.type.pointee
-                val = self.visit(ctx.children[2])
-                if isinstance(val.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
+                varType = valp.type.pointee  # valp指向的对象的类型
+                val = self.visit(ctx.children[2])  # 要存入的值
+                if not self.aCouldBeStoredInB(val.type, valp.type):
                     val = self.builder.load(val)
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
                 if converted_val is None:
                     converted_val = val
                 self.builder.store(converted_val, valp)
-                print("yes")
         else:
             pass
 
@@ -590,6 +600,7 @@ class LLVMGenerator(C2LLVMVisitor):
         #         args_val.append(arg)
         converted_args = []
         for argp, callee_arg in zip(actualParams, function_var.args):
+            arg = argp
             if isinstance(argp.type,ir.PointerType):
                 arg = self.builder.load(argp)
                 if isinstance(arg.type,ir.ArrayType):
@@ -655,10 +666,21 @@ class LLVMGenerator(C2LLVMVisitor):
                 if isinstance(rval.type, ir.PointerType):
                     rval = self.builder.load(rval)
                 if logic == "&&":
-                    boolRetVal = self.builder.and_(lval, rval)
+                    lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
+                    with self.builder.if_else(lval) as (then, otherwise):
+                        with then:
+                            boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
+                        with otherwise:
+                            boolRetVal = LLVMTypes.bool(0)
                 elif logic == "||":
-                    boolRetVal = self.builder.or_(lval, rval)
+                    lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
+                    with self.builder.if_else(lval) as (then, otherwise):
+                        with then:
+                            boolRetVal = LLVMTypes.bool(1)
+                        with otherwise:
+                            boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
                 else:
+                    # rval = LLVMTypes.cast_type(self.builder, target_type=lval.type, value=rval)
                     boolRetVal = self.builder.icmp_signed(logic, lval, rval)
                 return boolRetVal
             else:

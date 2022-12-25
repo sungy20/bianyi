@@ -88,13 +88,13 @@ int cal(char* a) {
 	opt = (LinkStack*)malloc(sizeof(LinkStack));
 	opt->count = 0;
 
-	while (a[i] != 0 || EmptyStack(opt) != 1)
+	while ((a[i] != 0 )|| (EmptyStack(opt) != 1))
 	{
-		if (a[i] >= '0' && a[i] <= '9')
+		if ((a[i] >= '0') && (a[i] <= '9'))
 		{
 			tmp = tmp * 10 + a[i] - '0';
 			i = i + 1;
-			if (a[i] < '0' || a[i] > '9')
+			if ((a[i] < '0') || (a[i] > '9'))
 			{
 				Push(num, tmp);
 				tmp = 0;
@@ -102,32 +102,32 @@ int cal(char* a) {
 		}
 		else
 		{
-			if (EmptyStack(opt) == 1 || GetTop(opt) == '(' && a[i] != ')' ||
-				Priority(a[i]) > Priority(GetTop(opt)))
+			if ((EmptyStack(opt) == 1 ) || (GetTop(opt) == '(' ) && (a[i] != ')') ||
+				(Priority(a[i]) > Priority(GetTop(opt))))
 			{
 				Push(opt, a[i]);
 				i = i + 1;
 				continue;
 			}
 
-			if (GetTop(opt) == '(' && a[i] == ')')
+			if ((GetTop(opt) == '(') && (a[i] == ')'))
 			{
 				Pop(opt);
 				i = i + 1;
 				continue;
 			}
 
-			if ((a[i] == ')' && GetTop(opt) != '(') || (a[i] == 0 && EmptyStack(opt) != 1) ||
-				Priority(a[i]) <= Priority(GetTop(opt)))
+			if (((a[i] == ')') && (GetTop(opt) != '(')) || ((a[i] == 0) && (EmptyStack(opt) != 1)) ||
+				(Priority(a[i]) <= Priority(GetTop(opt))))
 			{
 				char optchar = Pop(opt);
 				if (optchar == '+')Push(num, Pop(num) + Pop(num));
-				else if (optchar == '-') {
+				if (optchar == '-') {
 					j = Pop(num);
 					Push(num, Pop(num) - j);
 				}
-				else if (optchar == '*')Push(num, Pop(num) * Pop(num));
-				else if (optchar == '/') {
+				if (optchar == '*')Push(num, Pop(num) * Pop(num));
+				if (optchar == '/') {
 					j = Pop(num);
 					Push(num, Pop(num) / j);
 				}
