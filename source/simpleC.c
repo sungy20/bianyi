@@ -12,27 +12,13 @@ struct LinkStack
 
 int EmptyStack(LinkStack* S)
 {
-	if (S == 0)
-	{
-		return -1;
-	}
 	if (S->count == 0) return 1;
-	else return -1;
+	return 0;
 }
 
 int Push(LinkStack* S, int e)
 {
-	if (S == 0)
-	{
-		return -1;
-	}
-
 	Node* p = (Node*)malloc(sizeof(Node));
-	if (p == 0)
-	{
-		return -1;
-	}
-
 	p->data = e;
 	p->next = S->top;
 	S->top = p;
@@ -43,15 +29,11 @@ int Push(LinkStack* S, int e)
 
 int GetTop(LinkStack* S)
 {
-	if (S->top == 0)
-	{
-		return -1;
-	}
 	Node * temp = S->top;
 	return temp->data;
 }
 
-int Priority(char ch)
+int Priority(int ch)
 {
     int retval = 0;
 	if (ch == '(')retval = 3;
@@ -81,6 +63,7 @@ int cal(char* a) {
 	int i = 0;
 	int tmp = 0;
 	int j;
+	int k;
 
 	num = (LinkStack*)malloc(sizeof(LinkStack));
 	num->count = 0;
@@ -102,34 +85,41 @@ int cal(char* a) {
 		}
 		else
 		{
-			if ((EmptyStack(opt) == 1 ) || (GetTop(opt) == '(' ) && (a[i] != ')') ||
-				(Priority(a[i]) > Priority(GetTop(opt))))
+		    int top_num = 0;
+			int character = a[i];
+			if(EmptyStack(opt)!=1){
+				top_num = GetTop(opt);
+			}
+			if ((EmptyStack(opt) == 1 ) || (top_num == '(' ) && (character != ')') ||
+				(Priority(character) > Priority(top_num)))
 			{
-				Push(opt, a[i]);
+				Push(opt, character);
 				i = i + 1;
 				continue;
 			}
 
-			if ((GetTop(opt) == '(') && (a[i] == ')'))
+			if ((top_num == '(') && (character == ')'))
 			{
 				Pop(opt);
 				i = i + 1;
 				continue;
 			}
 
-			if (((a[i] == ')') && (GetTop(opt) != '(')) || ((a[i] == 0) && (EmptyStack(opt) != 1)) ||
-				(Priority(a[i]) <= Priority(GetTop(opt))))
+			if (((a[i] == ')') && (top_num != '(')) || ((character == 0) && (EmptyStack(opt) != 1)) ||
+				(Priority(character) <= Priority(top_num)))
 			{
-				char optchar = Pop(opt);
+				int optchar = Pop(opt);
 				if (optchar == '+')Push(num, Pop(num) + Pop(num));
 				if (optchar == '-') {
 					j = Pop(num);
-					Push(num, Pop(num) - j);
+					k = Pop(num) - j;
+					Push(num, k);
 				}
 				if (optchar == '*')Push(num, Pop(num) * Pop(num));
 				if (optchar == '/') {
 					j = Pop(num);
-					Push(num, Pop(num) / j);
+					k = Pop(num) / j;
+					Push(num, k);
 				}
 				continue;
 			}
@@ -140,5 +130,6 @@ int cal(char* a) {
 
 int main(){
     char a[100] = "15/3+2*(4-2)";
-    return cal(a);
+    int t = cal(a);
+    return t;
 }
