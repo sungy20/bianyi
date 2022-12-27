@@ -135,7 +135,7 @@ class LLVMGenerator(C2LLVMVisitor):
             return pointer_tp
         elif self.match_texts(ctx, LLVMTypes.str2type.keys()):
             # 'int' | 'char' | 'struct'
-            return LLVMTypes.str2type[ctx.getText()]   #TODO: sssssssssssss结构体
+            return LLVMTypes.str2type[ctx.getText()]
         else:
             print("Error: unknown type ", ctx.getText())
             exit(-1)
@@ -183,6 +183,9 @@ class LLVMGenerator(C2LLVMVisitor):
         self.visit(ctx.children[0])
 
     def depthOfPointer(self, p):
+        """
+        输入p为指针的类型，输出为指针级数
+        """
         depth = 0
         while isinstance(p, ir.PointerType):
             depth += 1
@@ -301,7 +304,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 varp = self.local_vars[var]
                 varType = varp.type.pointee
                 valp = self.visit(ctx.children[2])
-                if isinstance(valp.type, ir.PointerType) and not isinstance(varType, ir.PointerType):
+                if not self.aCouldBeStoredInB(valp.type, varp.type):
                     val = self.builder.load(valp)
                 else:
                     val = valp
@@ -557,10 +560,22 @@ class LLVMGenerator(C2LLVMVisitor):
                     structName = structName.pointee
                 structName = structName.name
                 index = self.structs[structName][memberName]
+                while self.depthOfPointer(varp.type) > 1:
+                    varp = self.builder.load(varp)
                 retval = self.builder.gep(varp, [index])
                 valueType = self.struct_entry_types[structName][memberName]
                 valueType = LLVMTypes.get_pointer_type(valueType)
                 retval = self.builder.bitcast(retval, valueType)
+            elif op == "&&":
+                lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
+                rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, retval)
+                boolRetVal = self.builder.and_(lval, rval)
+                boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
+            elif op == "||":
+                lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
+                rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, retval)
+                boolRetVal = self.builder.or_(lval, rval)
+                boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
             return retval
         elif len(ctx.children) == 2:
             if ctx.StrVar():
@@ -667,18 +682,14 @@ class LLVMGenerator(C2LLVMVisitor):
                     rval = self.builder.load(rval)
                 if logic == "&&":
                     lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
-                    with self.builder.if_else(lval) as (then, otherwise):
-                        with then:
-                            boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
-                        with otherwise:
-                            boolRetVal = LLVMTypes.bool(0)
+                    rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
+                    boolRetVal = self.builder.and_(lval, rval)
+                    boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
                 elif logic == "||":
                     lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
-                    with self.builder.if_else(lval) as (then, otherwise):
-                        with then:
-                            boolRetVal = LLVMTypes.bool(1)
-                        with otherwise:
-                            boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
+                    rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, rval)
+                    boolRetVal = self.builder.or_(lval, rval)
+                    boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
                 else:
                     # rval = LLVMTypes.cast_type(self.builder, target_type=lval.type, value=rval)
                     boolRetVal = self.builder.icmp_signed(logic, lval, rval)

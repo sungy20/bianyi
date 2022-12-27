@@ -1,9 +1,11 @@
 int main(){
-    char a[100] = "(1+1)";
-    int k = 0;
-    if( a == 0 )
+    int a = 1;
+    int b = 1;
+    int c = 0;
+    bool d = a && b;
+    if(d)
     {
-        k=1;
+        c = 1;
     }
-    return k;
+    return c;
 }

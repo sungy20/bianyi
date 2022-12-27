@@ -3,6 +3,5 @@ int get(int i){
 }
 int main(){
 	int j = get(10);
-	printf("j=%d\n",j);
-    return 0;
+    return j;
 }

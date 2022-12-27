@@ -16,20 +16,20 @@ int EmptyStack(LinkStack* S)
 	return 0;
 }
 
-int Push(LinkStack* S, int e)
+int Push(LinkStack* SS, int e)
 {
 	Node* p = (Node*)malloc(sizeof(Node));
 	p->data = e;
-	p->next = S->top;
-	S->top = p;
-	S->count = S->count + 1;
+	p->next = SS->top;
+	SS->top = p;
+	SS->count = SS->count + 1;
 
 	return 1;
 }
 
-int GetTop(LinkStack* S)
+int GetTop(LinkStack* SSS)
 {
-	Node * temp = S->top;
+	Node * temp = SSS->top;
 	return temp->data;
 }
 
@@ -44,26 +44,29 @@ int Priority(int ch)
 	return retval;
 }
 
-int Pop(LinkStack* S)
+int Pop(LinkStack* SSSS)
 {
-	int e;
+	int ee;
 
-	Node* p = S->top;
-	e = p->data;
-	S->top = p->next;
-	free(p);
-	S->count = S->count - 1;
+	Node* pp = SSSS->top;
+	ee = pp->data;
+	SSSS->top = pp->next;
+	free(pp);
+	SSSS->count = SSSS->count - 1;
 
-	return e;
+	return ee;
 }
 
-int cal(char* a) {
+int cal(char* aa) {
 	LinkStack* num;
 	LinkStack* opt;
 	int i = 0;
 	int tmp = 0;
 	int j;
 	int k;
+	int top_num = 0;
+	int character = aa[i];
+	int optchar = 0;
 
 	num = (LinkStack*)malloc(sizeof(LinkStack));
 	num->count = 0;
@@ -71,13 +74,13 @@ int cal(char* a) {
 	opt = (LinkStack*)malloc(sizeof(LinkStack));
 	opt->count = 0;
 
-	while ((a[i] != 0 )|| (EmptyStack(opt) != 1))
+	while ((aa[i] != 0 )|| (EmptyStack(opt) != 1))
 	{
-		if ((a[i] >= '0') && (a[i] <= '9'))
+		if ((aa[i] >= '0') && (aa[i] <= '9'))
 		{
-			tmp = tmp * 10 + a[i] - '0';
+			tmp = tmp * 10 + aa[i] - '0';
 			i = i + 1;
-			if ((a[i] < '0') || (a[i] > '9'))
+			if ((aa[i] < '0') || (aa[i] > '9'))
 			{
 				Push(num, tmp);
 				tmp = 0;
@@ -85,8 +88,8 @@ int cal(char* a) {
 		}
 		else
 		{
-		    int top_num = 0;
-			int character = a[i];
+		    top_num = 0;
+			character = aa[i];
 			if(EmptyStack(opt)!=1){
 				top_num = GetTop(opt);
 			}
@@ -105,10 +108,10 @@ int cal(char* a) {
 				continue;
 			}
 
-			if (((a[i] == ')') && (top_num != '(')) || ((character == 0) && (EmptyStack(opt) != 1)) ||
+			if (((character == ')') && (top_num != '(')) || ((character == 0) && (EmptyStack(opt) != 1)) ||
 				(Priority(character) <= Priority(top_num)))
 			{
-				int optchar = Pop(opt);
+				optchar = Pop(opt);
 				if (optchar == '+')Push(num, Pop(num) + Pop(num));
 				if (optchar == '-') {
 					j = Pop(num);
