@@ -23,6 +23,7 @@ int Push(LinkStack* SS, int e)
 
 int Pop(LinkStack* SSSS)
 {
+    printf("shit\n");
 	int ee;
 
 	Node* pp = SSSS->top;
@@ -36,7 +37,9 @@ int Pop(LinkStack* SSSS)
 
 int main(){
     LinkStack* num = (LinkStack*)malloc(sizeof(LinkStack));
-    Push(num, 1213);
-    Push(num, 1213);
-    return 0;
+    Push(num, 1);
+    Push(num, 2);
+    int t = Pop(num);
+    t = Pop(num);
+    return t;
 }

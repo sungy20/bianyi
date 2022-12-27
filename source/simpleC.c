@@ -112,13 +112,21 @@ int cal(char* aa) {
 				(Priority(character) <= Priority(top_num)))
 			{
 				optchar = Pop(opt);
-				if (optchar == '+')Push(num, Pop(num) + Pop(num));
+				if (optchar == '+'){
+				    j = Pop(num);
+					k = Pop(num);
+				    Push(num, j+k);
+				}
 				if (optchar == '-') {
 					j = Pop(num);
 					k = Pop(num) - j;
 					Push(num, k);
 				}
-				if (optchar == '*')Push(num, Pop(num) * Pop(num));
+				if (optchar == '*'){
+				    j = Pop(num);
+					k = Pop(num);
+				    Push(num, j*k);
+				}
 				if (optchar == '/') {
 					j = Pop(num);
 					k = Pop(num) / j;

@@ -27,6 +27,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self._current_struct_ = None
         self._current_struct_size_ = LLVMTypes.int(0)
         self.global_context = ir.global_context
+        self.msg = {}
 
     @staticmethod
     def match_rule(ctx, rule):
@@ -273,7 +274,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 if ctx.expr()[0].children[0].getText() == '&':
                     pass
                 else:
-                    if not self.aCouldBeStoredInB(val.type, varp.type):
+                    if (not self.aCouldBeStoredInB(val.type, varp.type)) and isinstance(val.type, ir.PointerType):
                         val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 if converted_rhs is None:
@@ -304,7 +305,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 varp = self.local_vars[var]
                 varType = varp.type.pointee
                 valp = self.visit(ctx.children[2])
-                if not self.aCouldBeStoredInB(valp.type, varp.type):
+                if (not self.aCouldBeStoredInB(valp.type, varp.type)) and isinstance(valp.type, ir.PointerType):
                     val = self.builder.load(valp)
                 else:
                     val = valp
