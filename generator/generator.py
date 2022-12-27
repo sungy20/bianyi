@@ -135,7 +135,7 @@ class LLVMGenerator(C2LLVMVisitor):
             return pointer_tp
         elif self.match_texts(ctx, LLVMTypes.str2type.keys()):
             # 'int' | 'char' | 'struct'
-            return LLVMTypes.str2type[ctx.getText()]
+            return LLVMTypes.str2type[ctx.getText()]   #TODO: sssssssssssss结构体
         else:
             print("Error: unknown type ", ctx.getText())
             exit(-1)
@@ -494,9 +494,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 varp = self.local_vars[text]
                 retval = varp
             else:
-                # TODO raise exception
-                print(self.module.functions)
-                print("Undefined identifier: '%s'\n" % text)
+                pass
         elif ctx.number():
             text = ctx.number().getText()
             retval = LLVMTypes.get_const_from_str(LLVMTypes.int, text)
@@ -566,16 +564,6 @@ class LLVMGenerator(C2LLVMVisitor):
                 valueType = self.struct_entry_types[structName][memberName]
                 valueType = LLVMTypes.get_pointer_type(valueType)
                 retval = self.builder.bitcast(retval, valueType)
-            elif op == "&&":
-                lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
-                rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, retval)
-                boolRetVal = self.builder.and_(lval, rval)
-                boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
-            elif op == "||":
-                lval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, lval)
-                rval = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, retval)
-                boolRetVal = self.builder.or_(lval, rval)
-                boolRetVal = LLVMTypes.cast_type(self.builder, LLVMTypes.bool, boolRetVal)
             return retval
         elif len(ctx.children) == 2:
             if ctx.StrVar():

@@ -93,7 +93,7 @@ int cal(char* aa) {
 			if(EmptyStack(opt)!=1){
 				top_num = GetTop(opt);
 			}
-			if ((EmptyStack(opt) == 1 ) || (top_num == '(' ) && (character != ')') ||
+			if ((EmptyStack(opt) == 1 ) || ((top_num == '(' ) && (character != ')')) ||
 				(Priority(character) > Priority(top_num)))
 			{
 				Push(opt, character);

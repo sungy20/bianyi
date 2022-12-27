@@ -158,7 +158,7 @@ int cal(char* a) {
 		}
 		else
 		{
-			if (EmptyStack(opt) == 1 || GetTop(opt) == '(' && a[i] != ')' ||
+			if (EmptyStack(opt) == 1 || (GetTop(opt) == '(' && a[i] != ')') ||
 				Priority(a[i]) > Priority(GetTop(opt)))
 			{
 				Push(opt, a[i]);
