@@ -10,23 +10,6 @@ struct LinkStack
 	int count;
 };
 
-int Push(LinkStack* SS, int e)
-{
-	Node* p = (Node*)malloc(sizeof(Node));
-	p->data = e;
-	p->next = SS->top;
-	SS->top = p;
-	SS->count = SS->count + 1;
-
-	return 1;
-}
-
-int GetTop(LinkStack* SSS)
-{
-	Node * temp = SSS->top;
-	return temp->data;
-}
-
 int Priority(int ch)
 {
     int retval = 0;
@@ -38,21 +21,8 @@ int Priority(int ch)
 	return retval;
 }
 
-int Pop(LinkStack* SSSS)
-{
-	int ee;
-
-	Node* pp = SSSS->top;
-	ee = pp->data;
-	SSSS->top = pp->next;
-	free(pp);
-	SSSS->count = SSSS->count - 1;
-
-	return ee;
-}
-
 int main(){
-    char a[100] = "1+1";
+    char a[100] = "1+2";
     int t;
 	LinkStack* num = (LinkStack*)malloc(sizeof(LinkStack));
 	LinkStack* opt = (LinkStack*)malloc(sizeof(LinkStack));
@@ -120,34 +90,70 @@ int main(){
 			if (((character == ')') && (top_num != '(')) || ((character == 0) && (opt->count != 0)) ||
 				(Priority(character) <= Priority(top_num)))
 			{
-			    Node* pp = opt->top;
-	            opt->top = pp->next;
-	            free(pp);
-	            opt->count = opt->count - 1;
-				optchar = pp->data;
-
-                pp = opt->top;
-	            opt->top = pp->next;
-	            free(pp);
-	            opt->count = opt->count - 1;
-				j = pp->data;
-
-				pp = opt->top;
-	            opt->top = pp->next;
-	            free(pp);
-	            opt->count = opt->count - 1;
-				k = pp->data;
+                    Node* pp = opt->top;
+                    optchar = pp->data;
+                    opt->top = pp->next;
+                    free(pp);
+                    opt->count = opt->count - 1;
 
 				if (optchar == '+'){
+				    pp = num->top;
+				    j = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
+                    pp = num->top;
+                    k = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
 				    calnum = j+k;
 				}
 				if (optchar == '-'){
+				    pp = num->top;
+				    j = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
+                    pp = num->top;
+                    k = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
 				    calnum = k-j;
 				}
 				if (optchar == '*'){
+                    pp = num->top;
+				    j = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
+                    pp = num->top;
+                    k = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
 				    calnum = k*j;
 				}
 				if (optchar == '/'){
+				    pp = num->top;
+				    j = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
+                    pp = num->top;
+                    k = pp->data;
+                    num->top = pp->next;
+                    free(pp);
+                    num->count = num->count - 1;
+
 				    calnum = k/j;
 				}
 
@@ -162,8 +168,9 @@ int main(){
 		}
 	}
 	Node* ppp = num->top;
+	int answer = ppp->data;
 	num->top = ppp->next;
 	free(ppp);
 	num->count = num->count - 1;
-    return ppp->data;
+    return answer;
 }

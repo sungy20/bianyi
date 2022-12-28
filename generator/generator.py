@@ -21,12 +21,12 @@ class LLVMGenerator(C2LLVMVisitor):
         # key为struct名的python字符串，value为结构体大小的LLVM值
         self.continue_block = None
         self.break_block = None
-        self.emit_printf()
         self.Blocks = []
         self._inside_struct_ = 0
         self._current_struct_ = None
         self._current_struct_size_ = LLVMTypes.int(0)
         self.global_context = ir.global_context
+        self.included = 0
         self.msg = {}
 
     @staticmethod
@@ -60,6 +60,12 @@ class LLVMGenerator(C2LLVMVisitor):
         scanf_type = ir.FunctionType(ir.IntType(32), [LLVMTypes.get_pointer_type(LLVMTypes.char),], var_arg=True)
         scanf_func = ir.Function(self.module, scanf_type, name="scanf")
         self.local_vars["scanf"] = scanf_func
+
+    def visitInclude(self, ctx:C2LLVMParser.IncludeContext):
+        if not self.included:
+            self.emit_printf()
+            self.emit_scanf()
+            self.included = 1
 
     def visitStart(self, ctx:C2LLVMParser.StartContext):
         for child in ctx.children:
@@ -236,7 +242,6 @@ class LLVMGenerator(C2LLVMVisitor):
                         print("declare need size")
                     self.structs[self._current_struct_][var] = self._current_struct_size_
                     current_variable_size = LLVMTypes.int(1)
-                    current_variable_size = self.builder.mul(current_variable_size, size)
                     self.struct_entry_types[self._current_struct_][var] = vtype
                     self._current_struct_size_ = LLVMTypes.int(self._current_struct_size_.constant + current_variable_size.constant)
                 else:  # 声明单个变量
@@ -279,6 +284,9 @@ class LLVMGenerator(C2LLVMVisitor):
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 if converted_rhs is None:
                     converted_rhs = val
+                if converted_rhs.type.is_pointer:
+                    if isinstance(converted_rhs.type.pointee, ir.ArrayType):
+                        converted_rhs = self.builder.gep(converted_rhs, [LLVMTypes.int(0), LLVMTypes.int(0)])
                 # 将值存储到指定的位置
                 self.builder.store(converted_rhs, varp)
                 self.local_vars[var] = varp
@@ -295,7 +303,7 @@ class LLVMGenerator(C2LLVMVisitor):
                     singleval = val.constant[i]
                     singleval = LLVMTypes.char(singleval)
                     singleval = LLVMTypes.cast_type(self.builder, vtype, singleval)
-                    addr = self.builder.gep(varp, [LLVMTypes.int(i), LLVMTypes.int(i)])
+                    addr = self.builder.gep(varp, [LLVMTypes.int(0), LLVMTypes.int(i)])
                     self.builder.store(singleval, addr)
                 # self.builder.bitcast(varp,LLVMTypes.get_pointer_type(vtype))   
                 self.local_vars[var] = varp
@@ -385,7 +393,7 @@ class LLVMGenerator(C2LLVMVisitor):
                 if isinstance(arg.type,ir.ArrayType):
                     arg = self.local_vars[i.getText()]
             args.append(arg)
-        self.builder.call(self.local_vars["printf"],args)
+        self.builder.call(self.local_vars["printf"], args)
 
     def visitScanfStat(self, ctx:C2LLVMParser.ScanfStatContext):
         """
@@ -408,7 +416,7 @@ class LLVMGenerator(C2LLVMVisitor):
             if isinstance(arg.type,ir.ArrayType):
                 arg = self.local_vars[i.getText()]
             args.append(arg)
-        self.builder.call(self.local_vars["scanf"],args)
+        self.builder.call(self.local_vars["scanf"], args)
 
     def visitBlock(self, ctx: C2LLVMParser.BlockContext):
         """
@@ -699,7 +707,7 @@ class LLVMGenerator(C2LLVMVisitor):
             index = self.builder.load(index)
         index = LLVMTypes.cast_type(self.builder, target_type=LLVMTypes.int, value=index)
         if isinstance(varp.type.pointee, ir.ArrayType):
-            valp = self.builder.gep(varp, [LLVMTypes.int(0),index])
+            valp = self.builder.gep(varp, [LLVMTypes.int(0), index])
         else:
             valp = self.builder.load(varp)
             if isinstance(valp.type, ir.PointerType):

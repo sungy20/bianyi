@@ -18,3 +18,4 @@ if __name__ == '__main__':
     gen = LLVMGenerator()
     gen.visit(tree)
     gen.save("test.ll")
+    print("compile done")

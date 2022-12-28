@@ -1,36 +1,27 @@
-struct Node
+#include <stdio.h>
+#include <stdlib.h>
+int EmptyStack(int* c)
 {
-	int data;
-	struct Node* next;
-};
-
-struct LinkStack
-{
-	struct Node* top;
-	int count;
-};
-
-int EmptyStack(LinkStack* S)
-{
-	if (S->count == 0) return 1;
+	if (c[0] == 0) return 1;
 	return 0;
 }
 
-int Push(LinkStack* SS, int e)
+int Push(int* SS, int* cc, int e)
 {
-	Node* p = (Node*)malloc(sizeof(Node));
-	p->data = e;
-	p->next = SS->top;
-	SS->top = p;
-	SS->count = SS->count + 1;
+	int indexone = cc[0];
+	SS[indexone] = e;
+	cc[0] = cc[0] + 1;
 
 	return 1;
 }
 
-int GetTop(LinkStack* SSS)
+int GetTop(int* SSS, int* ccc)
 {
-	Node * temp = SSS->top;
-	return temp->data;
+	int indextwo = ccc[0];
+	indextwo = indextwo - 1;
+	int retval = SSS[indextwo];
+
+	return retval;
 }
 
 int Priority(int ch)
@@ -44,22 +35,21 @@ int Priority(int ch)
 	return retval;
 }
 
-int Pop(LinkStack* SSSS)
+int Pop(int* SSSS, int* cccc)
 {
 	int ee;
-
-	Node* pp = SSSS->top;
-	ee = pp->data;
-	SSSS->top = pp->next;
-	free(pp);
-	SSSS->count = SSSS->count - 1;
+	cccc[0] = cccc[0] - 1;
+	int indexthree = cccc[0];
+	ee = SSSS[indexthree];
 
 	return ee;
 }
 
 int cal(char* aa) {
-	LinkStack* num;
-	LinkStack* opt;
+	int num[200];
+	int opt[100];
+	int count[1];
+	int counts[1];
 	int i = 0;
 	int tmp = 0;
 	int j;
@@ -67,14 +57,11 @@ int cal(char* aa) {
 	int top_num = 0;
 	int character = aa[i];
 	int optchar = 0;
+	int middle = 0;
+	count[0] = 0;
+	counts[0] = 0;
 
-	num = (LinkStack*)malloc(sizeof(LinkStack));
-	num->count = 0;
-
-	opt = (LinkStack*)malloc(sizeof(LinkStack));
-	opt->count = 0;
-
-	while ((aa[i] != 0 )|| (EmptyStack(opt) != 1))
+	while ((aa[i] != 0 )|| (EmptyStack(counts) != 1))
 	{
 		if ((aa[i] >= '0') && (aa[i] <= '9'))
 		{
@@ -82,7 +69,7 @@ int cal(char* aa) {
 			i = i + 1;
 			if ((aa[i] < '0') || (aa[i] > '9'))
 			{
-				Push(num, tmp);
+				Push(num, count, tmp);
 				tmp = 0;
 			}
 		}
@@ -90,57 +77,66 @@ int cal(char* aa) {
 		{
 		    top_num = 0;
 			character = aa[i];
-			if(EmptyStack(opt)!=1){
-				top_num = GetTop(opt);
+			if(EmptyStack(counts)!=1){
+				top_num = GetTop(opt, counts);
 			}
-			if ((EmptyStack(opt) == 1 ) || ((top_num == '(' ) && (character != ')')) ||
+			if ((EmptyStack(counts) == 1 ) || ((top_num == '(' ) && (character != ')')) ||
 				(Priority(character) > Priority(top_num)))
 			{
-				Push(opt, character);
+				Push(opt, counts, character);
 				i = i + 1;
 				continue;
 			}
 
 			if ((top_num == '(') && (character == ')'))
 			{
-				Pop(opt);
+				Pop(opt, counts);
 				i = i + 1;
 				continue;
 			}
 
-			if (((character == ')') && (top_num != '(')) || ((character == 0) && (EmptyStack(opt) != 1)) ||
+			if (((character == ')') && (top_num != '(')) || ((character == 0) && (EmptyStack(counts) != 1)) ||
 				(Priority(character) <= Priority(top_num)))
 			{
-				optchar = Pop(opt);
+				optchar = Pop(opt, counts);
 				if (optchar == '+'){
-				    j = Pop(num);
-					k = Pop(num);
-				    Push(num, j+k);
+				    j = Pop(num, count);
+					k = Pop(num, count);
+					middle = j+k;
+				    Push(num, count, middle);
 				}
 				if (optchar == '-') {
-					j = Pop(num);
-					k = Pop(num) - j;
-					Push(num, k);
+					j = Pop(num, count);
+					k = Pop(num, count);
+					middle = k-j;
+					Push(num, count, middle);
 				}
 				if (optchar == '*'){
-				    j = Pop(num);
-					k = Pop(num);
-				    Push(num, j*k);
+				    j = Pop(num, count);
+					k = Pop(num, count);
+					middle = j*k;
+				    Push(num, count, middle);
 				}
 				if (optchar == '/') {
-					j = Pop(num);
-					k = Pop(num) / j;
-					Push(num, k);
+					j = Pop(num, count);
+					k = Pop(num, count);
+					middle = k/j;
+					Push(num, count, middle);
 				}
 				continue;
 			}
 		}
 	}
-	return Pop(num);
+	int answer = Pop(num, count);
+	return answer;
 }
 
 int main(){
     char a[100] = "15/3+2*(4-2)";
+    printf("please key in string to be calculated:\n");
+    printf("(make sure it's valid and there's no space in it)\n");
+    scanf("%s", a);
     int t = cal(a);
+    printf("answer: %d\n", t);
     return t;
 }
