@@ -12,7 +12,7 @@ def makeTree(filename):
     tree = parser.start()
     return tree
 
-name = 'source\simpleC.c'
+name = 'source\other.c'
 if __name__ == '__main__':
     tree = makeTree(name)
     gen = LLVMGenerator()
