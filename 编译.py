@@ -12,10 +12,10 @@ def makeTree(filename):
     tree = parser.start()
     return tree
 
-name = 'source\other.c'
+name = 'source\sortC.c'
 if __name__ == '__main__':
     tree = makeTree(name)
     gen = LLVMGenerator()
     gen.visit(tree)
     gen.save("test.ll")
-    print("compile done")
+    gen.saveJSON("SyntaxTree.json")
