@@ -11,8 +11,8 @@ def makeTree(filename):
     parser = C2LLVMParser(stream)
     tree = parser.start()
     return tree
- 
-name = 'source\\makejson.c'
+
+name = 'source\simpleC.c'
 if __name__ == '__main__':
     tree = makeTree(name)
     gen = LLVMGenerator()

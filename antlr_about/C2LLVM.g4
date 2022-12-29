@@ -34,7 +34,7 @@ stat:
 	| scanfStat
 	| printfStat;
 
-declareStat: (usualType StrVar | varType array) ';';
+declareStat: (usualType StrVar | varType array | 'struct' StrVar StrVar) ';';
 
 assignStat: (
 		usualType StrVar

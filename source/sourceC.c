@@ -92,12 +92,13 @@ int GetTop(LinkStack* S)
 
 int Priority(char ch)
 {
-	if (ch == '(')return 3;
-	else if (ch == '*')return 2;
-	else if (ch == '/')return 2;
-	else if (ch == '+')return 1;
-	else if (ch == '-')return 1;
-	else return 0;
+    int retval = 0;
+	if (ch == '(')retval = 3;
+	if (ch == '*')retval = 2;
+	if (ch == '/')retval = 2;
+	if (ch == '+')retval = 1;
+	if (ch == '-')retval = 1;
+	return retval;
 }
 
 int Pop(LinkStack* S)
