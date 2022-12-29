@@ -73,12 +73,14 @@ class LLVMGenerator(C2LLVMVisitor):
 
     def visitCodeBlock(self, ctx: C2LLVMParser.CodeBlockContext):
         self.str = self.str + '"codeBlock":{'
-        child = ctx.children[0]
-        if self.match_rule(child, C2LLVMParser.RULE_include):
-            pass #TODO头文件
-        elif self.match_rule(child, C2LLVMParser.RULE_structPack):
-            pass #TODO结构体定义
-        elif self.match_rule(child, C2LLVMParser.RULE_function):
+        # child = ctx.children[0]
+        # if self.match_rule(child, C2LLVMParser.RULE_include):
+        #     pass #TODO头文件
+        # elif self.match_rule(child, C2LLVMParser.RULE_structPack):
+        #     pass #TODO结构体定义
+        # elif self.match_rule(child, C2LLVMParser.RULE_function):
+        #     self.visit(child)
+        for child in ctx.children:
             self.visit(child)
         self.str = self.str + '},'
 
@@ -93,9 +95,7 @@ class LLVMGenerator(C2LLVMVisitor):
         func_name = ctx.StrVar().getText()
         self.scope = func_name
         self.str = self.str + '"funcName":' + '"' + ctx.StrVar().getText() + '",'
-        self.str = self.str + '"params":{'
         args_type, args_name = self.visit(ctx.params())
-        self.str = self.str + '},'
         function_type = ir.FunctionType(ret_type,(args_type))
         llvm_function = ir.Function(self.module, function_type, name=func_name)  #创建llvm函数
         self.builder = ir.IRBuilder(llvm_function.append_basic_block(name=func_name))#
@@ -156,15 +156,17 @@ class LLVMGenerator(C2LLVMVisitor):
         :param ctx:
         :return: 对应的LLVM类型
         """
-        self.str = self.str + '"usualType":"'+ ctx.getText() +'",'
+        self.str = self.str + '"usualType":{'
         if self.match_rule(ctx.children[0], C2LLVMParser.RULE_pointerType):
             # 指针类型
             pt = ctx.pointerType()
             var_tp = self.visit(pt)
             pointer_tp = LLVMTypes.get_pointer_type(var_tp)
+            self.str = self.str + '},'
             return pointer_tp
         elif self.match_texts(ctx, LLVMTypes.str2type.keys()):
             # 'int' | 'char' | 'struct'
+            self.str = self.str + '},'
             return LLVMTypes.str2type[ctx.getText()]   #TODO: sssssssssssss结构体
         else:
             print("Error: unknown type ", ctx.getText())
@@ -175,15 +177,20 @@ class LLVMGenerator(C2LLVMVisitor):
         pointerType: varType '*' | 'struct' StrVar '*' | StrVar '*';
         return:指针对应类型
         """
-        self.str = self.str + '"pointerType":"'+ ctx.varType().getText() +'",'
+        self.str = self.str + '"pointerType":{'
+        
         returnType = LLVMTypes.char
         if ctx.varType():
+            self.str = self.str + '"varType":"'+ ctx.varType().getText() +'",'
             returnType = LLVMTypes.str2type[ctx.varType().getText()]
         else:
             struct_name = ctx.children[0].getText()
+            self.str = self.str + '"struct":"'+ struct_name +'",'
             if struct_name == 'struct':
                 struct_name = ctx.children[1].getText()
+                self.str = self.str + '"StrVar":"'+ struct_name +'",'
             returnType = self.global_context.get_identified_type(struct_name)
+        self.str = self.str + '},'
         return returnType
 
     def visitPackcontent(self, ctx: C2LLVMParser.PackcontentContext):
@@ -250,35 +257,41 @@ class LLVMGenerator(C2LLVMVisitor):
         """
         declareStat: (usualType StrVar |  varType array) ';';
         """
+        self.str = self.str + '"declareStat":{'
         if ctx.children[0].getText() == "struct" and not self._inside_struct_:  # 声明结构体对象
             # TODO 目前不支持声明数组
             struct_type = ctx.children[1].getText()
+            self.str = self.str + '"usualType":"' + struct_type + '",'
             struct_obj = ctx.children[2].getText()
+            self.str = self.str + '"StrVar":"' + struct_obj + '",'
             type_self = self.global_context.get_identified_type(struct_type)
             varp = self.builder.alloca(type_self)
-            self.local_vars[struct_obj] = varp
+            self.local_vars[self.scope + struct_obj] = varp
         elif not self._inside_struct_:
             if len(ctx.children) == 3:  # 正常情况
                 if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):  # 声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
+                    self.str = self.str + '"varType":"' + vtype + '",'
                     var, size = self.visit(ctx.array())
                     if size == None:
                         print("declare need size")
                     varp = LLVMTypes.get_array_type(vtype, size.constant)
                     varp = self.builder.alloca(varp, size)
-                    self.local_vars[var] = varp
+                    self.local_vars[self.scope + var] = varp
                 else:  # 声明单个变量
                     varType = self.visit(ctx.usualType())
                     var = ctx.children[1].getText()
+                    self.str = self.str + '"StrVar":"' + var + '",'
                     # 申请栈空间，并返回对应的指针
                     varp = self.builder.alloca(varType)
-                    self.local_vars[var] = varp
+                    self.local_vars[self.scope + var] = varp
             else:
                 pass
         elif ctx.children[0].getText() != "struct": #结构体内声明正常变量
             if len(ctx.children) == 3:  # 正常情况
                 if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):  # 声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
+                    self.str = self.str + '"varType":"' + vtype + '",'
                     var, size = self.visit(ctx.array())
                     if size == None:
                         print("declare need size")
@@ -290,12 +303,14 @@ class LLVMGenerator(C2LLVMVisitor):
                 else:  # 声明单个变量
                     vtype = self.visit(ctx.usualType())
                     var = ctx.children[1].getText()
+                    self.str = self.str + '"usualType":"' + var + '",'
                     self.structs[self._current_struct_][var] = self._current_struct_size_
                     current_variable_size = LLVMTypes.int(1)
                     self.struct_entry_types[self._current_struct_][var] = vtype
                     self._current_struct_size_ = LLVMTypes.int(self._current_struct_size_.constant + current_variable_size.constant)
             else:
                 print("结构体定义内声明结构体成员，尚未完成！")
+        self.str = self.str + '},'
 
     def visitAssignStat(self, ctx: C2LLVMParser.AssignStatContext):
         """
@@ -621,7 +636,7 @@ class LLVMGenerator(C2LLVMVisitor):
             elif op == '->':
                 varName = ctx.children[0].getText()
                 memberName = ctx.children[2].getText()
-                varp = self.local_vars[varName]
+                varp = self.local_vars[self.scope + varName]
                 structName = varp.type
                 while isinstance(structName, ir.PointerType):
                     structName = structName.pointee
@@ -694,6 +709,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self.str = self.str + '"actualParams":{'
         actual_arg_expr_list = []
         if ctx.children is None:
+            self.str = self.str + '},'
             return actual_arg_expr_list
         elif len(ctx.children) > 1:
             actual_arg_expr_list = self.visit(ctx.actualParams())
@@ -809,16 +825,20 @@ class LLVMGenerator(C2LLVMVisitor):
         pre: '(' StrVar '*'? ')'
         return: StrVar -> type
         """
+        self.str = self.str + '"pre":{'
         typeName = ctx.children[1].getText()
         varType = self.global_context.get_identified_type(typeName)
         if not varType:
             varType = LLVMTypes.str2type(typeName)
         if len(ctx.children) == 4:#指针类型转换
+            self.str = self.str + '},'
             return LLVMTypes.get_pointer_type(varType)
         elif len(ctx.children) == 3:#正常类型转换
+            self.str = self.str + '},'
             return varType
 
     def visitStructPack(self, ctx: C2LLVMParser.StructPackContext):
+        self.str = self.str + '"structPack":{'
         children1 = ctx.children[1].getText()
         new_struct = self.global_context.get_identified_type(children1)
         self._inside_struct_ = 1
@@ -831,6 +851,7 @@ class LLVMGenerator(C2LLVMVisitor):
         self._current_struct_size_ = LLVMTypes.int(0)
         values = self.struct_entry_types[children1].values()
         new_struct.set_body(*values)
+        self.str = self.str + '},'
 
     def getTypeSize(self, llvm_type):
         """

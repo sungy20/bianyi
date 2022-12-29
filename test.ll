@@ -4,9 +4,11 @@ target datalayout = ""
 
 %"Node" = type {i32, %"Node"*}
 %"LinkStack" = type {%"Node"*, i32}
-declare i32 @"printf"(i8* %".1", ...) 
+declare i32 @"printf"(i8* %".1", ...)
 
-define i32 @"EmptyStack"(%"LinkStack"* %".1") 
+declare i32 @"scanf"(i8* %".1", ...)
+
+define i32 @"EmptyStack"(%"LinkStack"* %".1")
 {
 EmptyStack:
   %".3" = alloca %"LinkStack"*
@@ -22,7 +24,7 @@ EmptyStack.endif:
   ret i32 0
 }
 
-define i32 @"Push"(i32 %".1", %"LinkStack"* %".2") 
+define i32 @"Push"(i32 %".1", %"LinkStack"* %".2")
 {
 Push:
   %".4" = alloca i32
@@ -56,7 +58,7 @@ Push:
   ret i32 1
 }
 
-define i32 @"GetTop"(%"LinkStack"* %".1") 
+define i32 @"GetTop"(%"LinkStack"* %".1")
 {
 GetTop:
   %".3" = alloca %"LinkStack"*
@@ -72,7 +74,7 @@ GetTop:
   ret i32 %".12"
 }
 
-define i32 @"Priority"(i32 %".1") 
+define i32 @"Priority"(i32 %".1")
 {
 Priority:
   %".3" = alloca i32
@@ -118,7 +120,7 @@ Priority.endif.endif.endif.endif.endif:
   ret i32 %".32"
 }
 
-define i32 @"Pop"(%"LinkStack"* %".1") 
+define i32 @"Pop"(%"LinkStack"* %".1")
 {
 Pop:
   %".3" = alloca %"LinkStack"*
@@ -149,7 +151,7 @@ Pop:
   ret i32 %".27"
 }
 
-define i32 @"cal"(i8* %".1") 
+define i32 @"cal"(i8* %".1")
 {
 cal:
   %".3" = alloca i8*
@@ -446,7 +448,7 @@ cal.while_body.endif.else...endif.2.endif:
   br label %"cal.while_cond"
 }
 
-define i32 @"main"() 
+define i32 @"main"()
 {
 main:
   %".2" = alloca [100 x i8], i32 100

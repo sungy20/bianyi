@@ -1,1 +1,1783 @@
-{"codeBlock":{"function":{"returnType":"int","funcName":"get","params":{"params":{"params":{"param":{"usualType":"int","StrVar":" f",},},"param":{"usualType":"int","StrVar":" e",},},},"packcontent":{"content":{"stat":{"returnStat":{"expr":{"StrVar":"e",},},},"content":{},},},},},"codeBlock":{"function":{"returnType":"int","funcName":"main","params":{"params":{},},"packcontent":{"content":{"stat":{"AssignStat":{"usualType":"int","StrVar":"b","expr":{"number":"1",},},},"content":{"stat":{"AssignStat":{"usualType":"int*","pointerType":"int","StrVar":"a","expr":{"StrVar":"b","StrVar":"b",},},},"content":{"stat":{"printfStat":{"STRING":""&b:%x\n"","expr":{"StrVar":"b","StrVar":"b",},},},"content":{"stat":{"printfStat":{"STRING":""a:%x\n"","expr":{"StrVar":"a",},},},"content":{"stat":{"AssignStat":{"usualType":"int*","pointerType":"int","StrVar":"c","expr":{"StrVar":"a",},},},"content":{"stat":{"printfStat":{"STRING":""c:%x\n"","expr":{"StrVar":"c",},},},"content":{"Block":{"ifBlock":{"condition":{"condition":{"expr":{"StrVar":"b",},},"logic":">","condition":{"expr":{"number":"0",},},},"packcontent":{"content":{"stat":{"AssignStat":{"StrVar":"b","expr":{"number":"1","expr":{"StrVar":"b",},"op":"-",},},},"content":{},},},"elseBlock":{"packcontent":{"content":{"stat":{"AssignStat":{"StrVar":"b","expr":{"number":"1","expr":{"StrVar":"b",},"op":"+",},},},"content":{},},},},},},"content":{"Block":{"whileBlock":{"condition":{"condition":{"expr":{"StrVar":"b",},},"logic":">","condition":{"expr":{"number":"0",},},},"packcontent":{"content":{"stat":{"AssignStat":{"StrVar":"b","expr":{"number":"1","expr":{"StrVar":"b",},"op":"-",},},},"content":{},},},},},"content":{"stat":{"declareStat":{"varType":"char","array":{"StrVar":"str","size":"100",},},},"content":{"stat":{"AssignStat":{"usualType":"int","StrVar":"d","expr":{"arrayValue":{"StrVar":"str","expr":{"number":"0",},},},},},"content":{"stat":{"customFunc":{"StrVar":"get","actualParams":{"actualParams":{"actualParam":{"expr":{"StrVar":"d",},},},"actualParam":{"expr":{"StrVar":"b",},},},},},"content":{"stat":{"returnStat":{"expr":{"number":"0",},},},"content":{},},},},},},},},},},},},},},},},},
+{
+    "codeBlock": {
+        "structPack": {
+            "content": {
+                "content": {
+                    "stat": {
+                        "declareStat": {
+                            "usualType": {},
+                            "usualType": "data",
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "declareStat": {
+                                "usualType": {
+                                    "pointerType": {
+                                        "struct": "struct",
+                                        "StrVar": "Node",
+                                    },
+                                },
+                                "usualType": "next",
+                            },
+                        },
+                        "content": {},
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "structPack": {
+            "content": {
+                "content": {
+                    "stat": {
+                        "declareStat": {
+                            "usualType": {
+                                "pointerType": {
+                                    "struct": "struct",
+                                    "StrVar": "Node",
+                                },
+                            },
+                            "usualType": "top",
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "declareStat": {
+                                "usualType": {},
+                                "usualType": "count",
+                            },
+                        },
+                        "content": {},
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "EmptyStack",
+            "params": {
+                "param": {
+                    "usualType": {
+                        "pointerType": {
+                            "struct": "LinkStack",
+                        },
+                    },
+                    "StrVar": " S",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "Block": {
+                        "ifBlock": {
+                            "condition": {
+                                "condition": {
+                                    "expr": {
+                                        "StrVar": "count",
+                                        "expr": {
+                                            "StrVar": "S",
+                                        },
+                                        "op": "->",
+                                    },
+                                },
+                                "logic": "==",
+                                "condition": {
+                                    "expr": {
+                                        "number": "0",
+                                    },
+                                },
+                            },
+                            "packcontent": {
+                                "stat": {
+                                    "returnStat": {
+                                        "expr": {
+                                            "number": "1",
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "returnStat": {
+                                "expr": {
+                                    "number": "0",
+                                },
+                            },
+                        },
+                        "content": {},
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "Push",
+            "params": {
+                "params": {
+                    "param": {
+                        "usualType": {},
+                        "StrVar": " e",
+                    },
+                },
+                "param": {
+                    "usualType": {
+                        "pointerType": {
+                            "struct": "LinkStack",
+                        },
+                    },
+                    "StrVar": " S",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "AssignStat": {
+                            "usualType": {
+                                "pointerType": {
+                                    "struct": "Node",
+                                },
+                            },
+                            "StrVar": "p",
+                            "expr": {
+                                "pre": {},
+                            },
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "AssignStat": {
+                                "expr": {
+                                    "StrVar": "data",
+                                    "expr": {
+                                        "StrVar": "p",
+                                    },
+                                    "op": "->",
+                                },
+                                "expr": {
+                                    "StrVar": "e",
+                                },
+                            },
+                        },
+                        "content": {
+                            "stat": {
+                                "AssignStat": {
+                                    "expr": {
+                                        "StrVar": "next",
+                                        "expr": {
+                                            "StrVar": "p",
+                                        },
+                                        "op": "->",
+                                    },
+                                    "expr": {
+                                        "StrVar": "top",
+                                        "expr": {
+                                            "StrVar": "S",
+                                        },
+                                        "op": "->",
+                                    },
+                                },
+                            },
+                            "content": {
+                                "stat": {
+                                    "AssignStat": {
+                                        "expr": {
+                                            "StrVar": "top",
+                                            "expr": {
+                                                "StrVar": "S",
+                                            },
+                                            "op": "->",
+                                        },
+                                        "expr": {
+                                            "StrVar": "p",
+                                        },
+                                    },
+                                },
+                                "content": {
+                                    "stat": {
+                                        "AssignStat": {
+                                            "expr": {
+                                                "StrVar": "count",
+                                                "expr": {
+                                                    "StrVar": "S",
+                                                },
+                                                "op": "->",
+                                            },
+                                            "expr": {
+                                                "number": "1",
+                                                "expr": {
+                                                    "StrVar": "count",
+                                                    "expr": {
+                                                        "StrVar": "S",
+                                                    },
+                                                    "op": "->",
+                                                },
+                                                "op": "+",
+                                            },
+                                        },
+                                    },
+                                    "content": {
+                                        "stat": {
+                                            "returnStat": {
+                                                "expr": {
+                                                    "number": "1",
+                                                },
+                                            },
+                                        },
+                                        "content": {},
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "GetTop",
+            "params": {
+                "param": {
+                    "usualType": {
+                        "pointerType": {
+                            "struct": "LinkStack",
+                        },
+                    },
+                    "StrVar": " S",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "AssignStat": {
+                            "usualType": {
+                                "pointerType": {
+                                    "struct": "Node",
+                                },
+                            },
+                            "StrVar": "temp",
+                            "expr": {
+                                "StrVar": "top",
+                                "expr": {
+                                    "StrVar": "S",
+                                },
+                                "op": "->",
+                            },
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "returnStat": {
+                                "expr": {
+                                    "StrVar": "data",
+                                    "expr": {
+                                        "StrVar": "temp",
+                                    },
+                                    "op": "->",
+                                },
+                            },
+                        },
+                        "content": {},
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "Priority",
+            "params": {
+                "param": {
+                    "usualType": {},
+                    "StrVar": " ch",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "AssignStat": {
+                            "usualType": {},
+                            "StrVar": "retval",
+                            "expr": {
+                                "number": "0",
+                            },
+                        },
+                    },
+                    "content": {
+                        "Block": {
+                            "ifBlock": {
+                                "condition": {
+                                    "condition": {
+                                        "expr": {
+                                            "StrVar": "ch",
+                                        },
+                                    },
+                                    "logic": "==",
+                                    "condition": {
+                                        "expr": {
+                                            "CHAR": "'('",
+                                        },
+                                    },
+                                },
+                                "packcontent": {
+                                    "stat": {
+                                        "AssignStat": {
+                                            "StrVar": "retval",
+                                            "expr": {
+                                                "number": "3",
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "content": {
+                            "Block": {
+                                "ifBlock": {
+                                    "condition": {
+                                        "condition": {
+                                            "expr": {
+                                                "StrVar": "ch",
+                                            },
+                                        },
+                                        "logic": "==",
+                                        "condition": {
+                                            "expr": {
+                                                "CHAR": "'*'",
+                                            },
+                                        },
+                                    },
+                                    "packcontent": {
+                                        "stat": {
+                                            "AssignStat": {
+                                                "StrVar": "retval",
+                                                "expr": {
+                                                    "number": "2",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                            "content": {
+                                "Block": {
+                                    "ifBlock": {
+                                        "condition": {
+                                            "condition": {
+                                                "expr": {
+                                                    "StrVar": "ch",
+                                                },
+                                            },
+                                            "logic": "==",
+                                            "condition": {
+                                                "expr": {
+                                                    "CHAR": "'/'",
+                                                },
+                                            },
+                                        },
+                                        "packcontent": {
+                                            "stat": {
+                                                "AssignStat": {
+                                                    "StrVar": "retval",
+                                                    "expr": {
+                                                        "number": "2",
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                                "content": {
+                                    "Block": {
+                                        "ifBlock": {
+                                            "condition": {
+                                                "condition": {
+                                                    "expr": {
+                                                        "StrVar": "ch",
+                                                    },
+                                                },
+                                                "logic": "==",
+                                                "condition": {
+                                                    "expr": {
+                                                        "CHAR": "'+'",
+                                                    },
+                                                },
+                                            },
+                                            "packcontent": {
+                                                "stat": {
+                                                    "AssignStat": {
+                                                        "StrVar": "retval",
+                                                        "expr": {
+                                                            "number": "1",
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    "content": {
+                                        "Block": {
+                                            "ifBlock": {
+                                                "condition": {
+                                                    "condition": {
+                                                        "expr": {
+                                                            "StrVar": "ch",
+                                                        },
+                                                    },
+                                                    "logic": "==",
+                                                    "condition": {
+                                                        "expr": {
+                                                            "CHAR": "'-'",
+                                                        },
+                                                    },
+                                                },
+                                                "packcontent": {
+                                                    "stat": {
+                                                        "AssignStat": {
+                                                            "StrVar": "retval",
+                                                            "expr": {
+                                                                "number": "1",
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                        "content": {
+                                            "stat": {
+                                                "returnStat": {
+                                                    "expr": {
+                                                        "StrVar": "retval",
+                                                    },
+                                                },
+                                            },
+                                            "content": {},
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "Pop",
+            "params": {
+                "param": {
+                    "usualType": {
+                        "pointerType": {
+                            "struct": "LinkStack",
+                        },
+                    },
+                    "StrVar": " S",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "declareStat": {
+                            "usualType": {},
+                            "StrVar": "e",
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "AssignStat": {
+                                "usualType": {
+                                    "pointerType": {
+                                        "struct": "Node",
+                                    },
+                                },
+                                "StrVar": "p",
+                                "expr": {
+                                    "StrVar": "top",
+                                    "expr": {
+                                        "StrVar": "S",
+                                    },
+                                    "op": "->",
+                                },
+                            },
+                        },
+                        "content": {
+                            "stat": {
+                                "AssignStat": {
+                                    "StrVar": "e",
+                                    "expr": {
+                                        "StrVar": "data",
+                                        "expr": {
+                                            "StrVar": "p",
+                                        },
+                                        "op": "->",
+                                    },
+                                },
+                            },
+                            "content": {
+                                "stat": {
+                                    "AssignStat": {
+                                        "expr": {
+                                            "StrVar": "top",
+                                            "expr": {
+                                                "StrVar": "S",
+                                            },
+                                            "op": "->",
+                                        },
+                                        "expr": {
+                                            "StrVar": "next",
+                                            "expr": {
+                                                "StrVar": "p",
+                                            },
+                                            "op": "->",
+                                        },
+                                    },
+                                },
+                                "content": {
+                                    "stat": {},
+                                    "content": {
+                                        "stat": {
+                                            "AssignStat": {
+                                                "expr": {
+                                                    "StrVar": "count",
+                                                    "expr": {
+                                                        "StrVar": "S",
+                                                    },
+                                                    "op": "->",
+                                                },
+                                                "expr": {
+                                                    "number": "1",
+                                                    "expr": {
+                                                        "StrVar": "count",
+                                                        "expr": {
+                                                            "StrVar": "S",
+                                                        },
+                                                        "op": "->",
+                                                    },
+                                                    "op": "-",
+                                                },
+                                            },
+                                        },
+                                        "content": {
+                                            "stat": {
+                                                "returnStat": {
+                                                    "expr": {
+                                                        "StrVar": "e",
+                                                    },
+                                                },
+                                            },
+                                            "content": {},
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "cal",
+            "params": {
+                "param": {
+                    "usualType": {
+                        "pointerType": {
+                            "varType": "char",
+                        },
+                    },
+                    "StrVar": " a",
+                },
+            },
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "declareStat": {
+                            "usualType": {
+                                "pointerType": {
+                                    "struct": "LinkStack",
+                                },
+                            },
+                            "StrVar": "num",
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "declareStat": {
+                                "usualType": {
+                                    "pointerType": {
+                                        "struct": "LinkStack",
+                                    },
+                                },
+                                "StrVar": "opt",
+                            },
+                        },
+                        "content": {
+                            "stat": {
+                                "AssignStat": {
+                                    "usualType": {},
+                                    "StrVar": "i",
+                                    "expr": {
+                                        "number": "0",
+                                    },
+                                },
+                            },
+                            "content": {
+                                "stat": {
+                                    "AssignStat": {
+                                        "usualType": {},
+                                        "StrVar": "tmp",
+                                        "expr": {
+                                            "number": "0",
+                                        },
+                                    },
+                                },
+                                "content": {
+                                    "stat": {
+                                        "declareStat": {
+                                            "usualType": {},
+                                            "StrVar": "j",
+                                        },
+                                    },
+                                    "content": {
+                                        "stat": {
+                                            "declareStat": {
+                                                "usualType": {},
+                                                "StrVar": "k",
+                                            },
+                                        },
+                                        "content": {
+                                            "stat": {
+                                                "AssignStat": {
+                                                    "StrVar": "num",
+                                                    "expr": {
+                                                        "pre": {},
+                                                    },
+                                                },
+                                            },
+                                            "content": {
+                                                "stat": {
+                                                    "AssignStat": {
+                                                        "expr": {
+                                                            "StrVar": "count",
+                                                            "expr": {
+                                                                "StrVar": "num",
+                                                            },
+                                                            "op": "->",
+                                                        },
+                                                        "expr": {
+                                                            "number": "0",
+                                                        },
+                                                    },
+                                                },
+                                                "content": {
+                                                    "stat": {
+                                                        "AssignStat": {
+                                                            "StrVar": "opt",
+                                                            "expr": {
+                                                                "pre": {},
+                                                            },
+                                                        },
+                                                    },
+                                                    "content": {
+                                                        "stat": {
+                                                            "AssignStat": {
+                                                                "expr": {
+                                                                    "StrVar": "count",
+                                                                    "expr": {
+                                                                        "StrVar": "opt",
+                                                                    },
+                                                                    "op": "->",
+                                                                },
+                                                                "expr": {
+                                                                    "number": "0",
+                                                                },
+                                                            },
+                                                        },
+                                                        "content": {
+                                                            "Block": {
+                                                                "whileBlock": {
+                                                                    "condition": {
+                                                                        "condition": {
+                                                                            "condition": {
+                                                                                "condition": {
+                                                                                    "expr": {
+                                                                                        "arrayValue": {
+                                                                                            "StrVar": "a",
+                                                                                            "expr": {
+                                                                                                "StrVar": "i",
+                                                                                            },
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                                "logic": "!=",
+                                                                                "condition": {
+                                                                                    "expr": {
+                                                                                        "number": "0",
+                                                                                    },
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                        "logic": "||",
+                                                                        "condition": {
+                                                                            "condition": {
+                                                                                "condition": {
+                                                                                    "expr": {
+                                                                                        "customFunc": {
+                                                                                            "StrVar": "EmptyStack",
+                                                                                            "actualParams": {
+                                                                                                "actualParam": {
+                                                                                                    "expr": {
+                                                                                                        "StrVar": "opt",
+                                                                                                    },
+                                                                                                },
+                                                                                            },
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                                "logic": "!=",
+                                                                                "condition": {
+                                                                                    "expr": {
+                                                                                        "number": "1",
+                                                                                    },
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                    },
+                                                                    "packcontent": {
+                                                                        "content": {
+                                                                            "Block": {
+                                                                                "ifBlock": {
+                                                                                    "condition": {
+                                                                                        "condition": {
+                                                                                            "condition": {
+                                                                                                "condition": {
+                                                                                                    "expr": {
+                                                                                                        "arrayValue": {
+                                                                                                            "StrVar": "a",
+                                                                                                            "expr": {
+                                                                                                                "StrVar": "i",
+                                                                                                            },
+                                                                                                        },
+                                                                                                    },
+                                                                                                },
+                                                                                                "logic": ">=",
+                                                                                                "condition": {
+                                                                                                    "expr": {
+                                                                                                        "CHAR": "'0'",
+                                                                                                    },
+                                                                                                },
+                                                                                            },
+                                                                                        },
+                                                                                        "logic": "&&",
+                                                                                        "condition": {
+                                                                                            "condition": {
+                                                                                                "condition": {
+                                                                                                    "expr": {
+                                                                                                        "arrayValue": {
+                                                                                                            "StrVar": "a",
+                                                                                                            "expr": {
+                                                                                                                "StrVar": "i",
+                                                                                                            },
+                                                                                                        },
+                                                                                                    },
+                                                                                                },
+                                                                                                "logic": "<=",
+                                                                                                "condition": {
+                                                                                                    "expr": {
+                                                                                                        "CHAR": "'9'",
+                                                                                                    },
+                                                                                                },
+                                                                                            },
+                                                                                        },
+                                                                                    },
+                                                                                    "packcontent": {
+                                                                                        "content": {
+                                                                                            "stat": {
+                                                                                                "AssignStat": {
+                                                                                                    "StrVar": "tmp",
+                                                                                                    "expr": {
+                                                                                                        "CHAR": "'0'",
+                                                                                                        "expr": {
+                                                                                                            "arrayValue": {
+                                                                                                                "StrVar": "a",
+                                                                                                                "expr": {
+                                                                                                                    "StrVar": "i",
+                                                                                                                },
+                                                                                                            },
+                                                                                                            "expr": {
+                                                                                                                "number": "10",
+                                                                                                                "expr": {
+                                                                                                                    "StrVar": "tmp",
+                                                                                                                },
+                                                                                                                "op": "*",
+                                                                                                            },
+                                                                                                            "op": "+",
+                                                                                                        },
+                                                                                                        "op": "-",
+                                                                                                    },
+                                                                                                },
+                                                                                            },
+                                                                                            "content": {
+                                                                                                "stat": {
+                                                                                                    "AssignStat": {
+                                                                                                        "StrVar": "i",
+                                                                                                        "expr": {
+                                                                                                            "number": "1",
+                                                                                                            "expr": {
+                                                                                                                "StrVar": "i",
+                                                                                                            },
+                                                                                                            "op": "+",
+                                                                                                        },
+                                                                                                    },
+                                                                                                },
+                                                                                                "content": {
+                                                                                                    "Block": {
+                                                                                                        "ifBlock": {
+                                                                                                            "condition": {
+                                                                                                                "condition": {
+                                                                                                                    "condition": {
+                                                                                                                        "condition": {
+                                                                                                                            "expr": {
+                                                                                                                                "arrayValue": {
+                                                                                                                                    "StrVar": "a",
+                                                                                                                                    "expr": {
+                                                                                                                                        "StrVar": "i",
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "logic": "<",
+                                                                                                                        "condition": {
+                                                                                                                            "expr": {
+                                                                                                                                "CHAR": "'0'",
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                },
+                                                                                                                "logic": "||",
+                                                                                                                "condition": {
+                                                                                                                    "condition": {
+                                                                                                                        "condition": {
+                                                                                                                            "expr": {
+                                                                                                                                "arrayValue": {
+                                                                                                                                    "StrVar": "a",
+                                                                                                                                    "expr": {
+                                                                                                                                        "StrVar": "i",
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "logic": ">",
+                                                                                                                        "condition": {
+                                                                                                                            "expr": {
+                                                                                                                                "CHAR": "'9'",
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                },
+                                                                                                            },
+                                                                                                            "packcontent": {
+                                                                                                                "content": {
+                                                                                                                    "stat": {
+                                                                                                                        "customFunc": {
+                                                                                                                            "StrVar": "Push",
+                                                                                                                            "actualParams": {
+                                                                                                                                "actualParams": {
+                                                                                                                                    "actualParam": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "StrVar": "tmp",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "actualParam": {
+                                                                                                                                    "expr": {
+                                                                                                                                        "StrVar": "num",
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    "content": {
+                                                                                                                        "stat": {
+                                                                                                                            "AssignStat": {
+                                                                                                                                "StrVar": "tmp",
+                                                                                                                                "expr": {
+                                                                                                                                    "number": "0",
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "content": {},
+                                                                                                                    },
+                                                                                                                },
+                                                                                                            },
+                                                                                                        },
+                                                                                                    },
+                                                                                                    "content": {},
+                                                                                                },
+                                                                                            },
+                                                                                        },
+                                                                                    },
+                                                                                    "elseBlock": {
+                                                                                        "packcontent": {
+                                                                                            "content": {
+                                                                                                "stat": {
+                                                                                                    "AssignStat": {
+                                                                                                        "usualType": {},
+                                                                                                        "StrVar": "top_num",
+                                                                                                        "expr": {
+                                                                                                            "number": "0",
+                                                                                                        },
+                                                                                                    },
+                                                                                                },
+                                                                                                "content": {
+                                                                                                    "stat": {
+                                                                                                        "AssignStat": {
+                                                                                                            "usualType": {},
+                                                                                                            "StrVar": "character",
+                                                                                                            "expr": {
+                                                                                                                "arrayValue": {
+                                                                                                                    "StrVar": "a",
+                                                                                                                    "expr": {
+                                                                                                                        "StrVar": "i",
+                                                                                                                    },
+                                                                                                                },
+                                                                                                            },
+                                                                                                        },
+                                                                                                    },
+                                                                                                    "content": {
+                                                                                                        "Block": {
+                                                                                                            "ifBlock": {
+                                                                                                                "condition": {
+                                                                                                                    "condition": {
+                                                                                                                        "expr": {
+                                                                                                                            "customFunc": {
+                                                                                                                                "StrVar": "EmptyStack",
+                                                                                                                                "actualParams": {
+                                                                                                                                    "actualParam": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "StrVar": "opt",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    "logic": "!=",
+                                                                                                                    "condition": {
+                                                                                                                        "expr": {
+                                                                                                                            "number": "1",
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                },
+                                                                                                                "packcontent": {
+                                                                                                                    "content": {
+                                                                                                                        "stat": {
+                                                                                                                            "AssignStat": {
+                                                                                                                                "StrVar": "top_num",
+                                                                                                                                "expr": {
+                                                                                                                                    "customFunc": {
+                                                                                                                                        "StrVar": "GetTop",
+                                                                                                                                        "actualParams": {
+                                                                                                                                            "actualParam": {
+                                                                                                                                                "expr": {
+                                                                                                                                                    "StrVar": "opt",
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "content": {},
+                                                                                                                    },
+                                                                                                                },
+                                                                                                            },
+                                                                                                        },
+                                                                                                        "content": {
+                                                                                                            "Block": {
+                                                                                                                "ifBlock": {
+                                                                                                                    "condition": {
+                                                                                                                        "condition": {
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "customFunc": {
+                                                                                                                                                    "StrVar": "EmptyStack",
+                                                                                                                                                    "actualParams": {
+                                                                                                                                                        "actualParam": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "StrVar": "opt",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        "logic": "==",
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "number": "1",
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "logic": "||",
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "StrVar": "top_num",
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        "logic": "==",
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "CHAR": "'('",
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                            "logic": "&&",
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "StrVar": "character",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "logic": "!=",
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "CHAR": "')'",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "logic": "||",
+                                                                                                                        "condition": {
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "expr": {
+                                                                                                                                        "customFunc": {
+                                                                                                                                            "StrVar": "Priority",
+                                                                                                                                            "actualParams": {
+                                                                                                                                                "actualParam": {
+                                                                                                                                                    "expr": {
+                                                                                                                                                        "StrVar": "character",
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "logic": ">",
+                                                                                                                                "condition": {
+                                                                                                                                    "expr": {
+                                                                                                                                        "customFunc": {
+                                                                                                                                            "StrVar": "Priority",
+                                                                                                                                            "actualParams": {
+                                                                                                                                                "actualParam": {
+                                                                                                                                                    "expr": {
+                                                                                                                                                        "StrVar": "top_num",
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    "packcontent": {
+                                                                                                                        "content": {
+                                                                                                                            "stat": {
+                                                                                                                                "customFunc": {
+                                                                                                                                    "StrVar": "Push",
+                                                                                                                                    "actualParams": {
+                                                                                                                                        "actualParams": {
+                                                                                                                                            "actualParam": {
+                                                                                                                                                "expr": {
+                                                                                                                                                    "StrVar": "character",
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        "actualParam": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "StrVar": "opt",
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                            "content": {
+                                                                                                                                "stat": {
+                                                                                                                                    "AssignStat": {
+                                                                                                                                        "StrVar": "i",
+                                                                                                                                        "expr": {
+                                                                                                                                            "number": "1",
+                                                                                                                                            "expr": {
+                                                                                                                                                "StrVar": "i",
+                                                                                                                                            },
+                                                                                                                                            "op": "+",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "content": {
+                                                                                                                                    "stat": {
+                                                                                                                                        "continueStat": "continue",
+                                                                                                                                    },
+                                                                                                                                    "content": {},
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                },
+                                                                                                            },
+                                                                                                            "content": {
+                                                                                                                "Block": {
+                                                                                                                    "ifBlock": {
+                                                                                                                        "condition": {
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "StrVar": "top_num",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "logic": "==",
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "CHAR": "'('",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                            "logic": "&&",
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "StrVar": "character",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "logic": "==",
+                                                                                                                                    "condition": {
+                                                                                                                                        "expr": {
+                                                                                                                                            "CHAR": "')'",
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                        "packcontent": {
+                                                                                                                            "content": {
+                                                                                                                                "stat": {
+                                                                                                                                    "customFunc": {
+                                                                                                                                        "StrVar": "Pop",
+                                                                                                                                        "actualParams": {
+                                                                                                                                            "actualParam": {
+                                                                                                                                                "expr": {
+                                                                                                                                                    "StrVar": "opt",
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "content": {
+                                                                                                                                    "stat": {
+                                                                                                                                        "AssignStat": {
+                                                                                                                                            "StrVar": "i",
+                                                                                                                                            "expr": {
+                                                                                                                                                "number": "1",
+                                                                                                                                                "expr": {
+                                                                                                                                                    "StrVar": "i",
+                                                                                                                                                },
+                                                                                                                                                "op": "+",
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "content": {
+                                                                                                                                        "stat": {
+                                                                                                                                            "continueStat": "continue",
+                                                                                                                                        },
+                                                                                                                                        "content": {},
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                },
+                                                                                                                "content": {
+                                                                                                                    "Block": {
+                                                                                                                        "ifBlock": {
+                                                                                                                            "condition": {
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "condition": {
+                                                                                                                                            "condition": {
+                                                                                                                                                "condition": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "arrayValue": {
+                                                                                                                                                                "StrVar": "a",
+                                                                                                                                                                "expr": {
+                                                                                                                                                                    "StrVar": "i",
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "logic": "==",
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "CHAR": "')'",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                            "logic": "&&",
+                                                                                                                                            "condition": {
+                                                                                                                                                "condition": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "StrVar": "top_num",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "logic": "!=",
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "CHAR": "'('",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "logic": "||",
+                                                                                                                                    "condition": {
+                                                                                                                                        "condition": {
+                                                                                                                                            "condition": {
+                                                                                                                                                "condition": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "StrVar": "character",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "logic": "==",
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "number": "0",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                            "logic": "&&",
+                                                                                                                                            "condition": {
+                                                                                                                                                "condition": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "customFunc": {
+                                                                                                                                                                "StrVar": "EmptyStack",
+                                                                                                                                                                "actualParams": {
+                                                                                                                                                                    "actualParam": {
+                                                                                                                                                                        "expr": {
+                                                                                                                                                                            "StrVar": "opt",
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "logic": "!=",
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "number": "1",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                                "logic": "||",
+                                                                                                                                "condition": {
+                                                                                                                                    "condition": {
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "customFunc": {
+                                                                                                                                                    "StrVar": "Priority",
+                                                                                                                                                    "actualParams": {
+                                                                                                                                                        "actualParam": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "StrVar": "character",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        "logic": "<=",
+                                                                                                                                        "condition": {
+                                                                                                                                            "expr": {
+                                                                                                                                                "customFunc": {
+                                                                                                                                                    "StrVar": "Priority",
+                                                                                                                                                    "actualParams": {
+                                                                                                                                                        "actualParam": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "StrVar": "top_num",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                            "packcontent": {
+                                                                                                                                "content": {
+                                                                                                                                    "stat": {
+                                                                                                                                        "AssignStat": {
+                                                                                                                                            "usualType": {},
+                                                                                                                                            "StrVar": "optchar",
+                                                                                                                                            "expr": {
+                                                                                                                                                "customFunc": {
+                                                                                                                                                    "StrVar": "Pop",
+                                                                                                                                                    "actualParams": {
+                                                                                                                                                        "actualParam": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "StrVar": "opt",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                    "content": {
+                                                                                                                                        "Block": {
+                                                                                                                                            "ifBlock": {
+                                                                                                                                                "condition": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "StrVar": "optchar",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "logic": "==",
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "expr": {
+                                                                                                                                                            "CHAR": "'+'",
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                                "packcontent": {
+                                                                                                                                                    "stat": {
+                                                                                                                                                        "customFunc": {
+                                                                                                                                                            "StrVar": "Push",
+                                                                                                                                                            "actualParams": {
+                                                                                                                                                                "actualParams": {
+                                                                                                                                                                    "actualParam": {
+                                                                                                                                                                        "expr": {
+                                                                                                                                                                            "expr": {
+                                                                                                                                                                                "customFunc": {
+                                                                                                                                                                                    "StrVar": "Pop",
+                                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                                            "expr": {
+                                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                            "expr": {
+                                                                                                                                                                                "customFunc": {
+                                                                                                                                                                                    "StrVar": "Pop",
+                                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                                            "expr": {
+                                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                            "op": "+",
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                                "actualParam": {
+                                                                                                                                                                    "expr": {
+                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                        "content": {
+                                                                                                                                            "Block": {
+                                                                                                                                                "ifBlock": {
+                                                                                                                                                    "condition": {
+                                                                                                                                                        "condition": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "StrVar": "optchar",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                        "logic": "==",
+                                                                                                                                                        "condition": {
+                                                                                                                                                            "expr": {
+                                                                                                                                                                "CHAR": "'-'",
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "packcontent": {
+                                                                                                                                                        "content": {
+                                                                                                                                                            "stat": {
+                                                                                                                                                                "AssignStat": {
+                                                                                                                                                                    "StrVar": "j",
+                                                                                                                                                                    "expr": {
+                                                                                                                                                                        "customFunc": {
+                                                                                                                                                                            "StrVar": "Pop",
+                                                                                                                                                                            "actualParams": {
+                                                                                                                                                                                "actualParam": {
+                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                            "content": {
+                                                                                                                                                                "stat": {
+                                                                                                                                                                    "AssignStat": {
+                                                                                                                                                                        "StrVar": "k",
+                                                                                                                                                                        "expr": {
+                                                                                                                                                                            "StrVar": "j",
+                                                                                                                                                                            "expr": {
+                                                                                                                                                                                "customFunc": {
+                                                                                                                                                                                    "StrVar": "Pop",
+                                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                                            "expr": {
+                                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                            "op": "-",
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                                "content": {
+                                                                                                                                                                    "stat": {
+                                                                                                                                                                        "customFunc": {
+                                                                                                                                                                            "StrVar": "Push",
+                                                                                                                                                                            "actualParams": {
+                                                                                                                                                                                "actualParams": {
+                                                                                                                                                                                    "actualParam": {
+                                                                                                                                                                                        "expr": {
+                                                                                                                                                                                            "StrVar": "k",
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                                "actualParam": {
+                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                    "content": {},
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                            "content": {
+                                                                                                                                                "Block": {
+                                                                                                                                                    "ifBlock": {
+                                                                                                                                                        "condition": {
+                                                                                                                                                            "condition": {
+                                                                                                                                                                "expr": {
+                                                                                                                                                                    "StrVar": "optchar",
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                            "logic": "==",
+                                                                                                                                                            "condition": {
+                                                                                                                                                                "expr": {
+                                                                                                                                                                    "CHAR": "'*'",
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                        "packcontent": {
+                                                                                                                                                            "stat": {
+                                                                                                                                                                "customFunc": {
+                                                                                                                                                                    "StrVar": "Push",
+                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                        "actualParams": {
+                                                                                                                                                                            "actualParam": {
+                                                                                                                                                                                "expr": {
+                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                        "customFunc": {
+                                                                                                                                                                                            "StrVar": "Pop",
+                                                                                                                                                                                            "actualParams": {
+                                                                                                                                                                                                "actualParam": {
+                                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                                                    },
+                                                                                                                                                                                                },
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                        "customFunc": {
+                                                                                                                                                                                            "StrVar": "Pop",
+                                                                                                                                                                                            "actualParams": {
+                                                                                                                                                                                                "actualParam": {
+                                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                                                    },
+                                                                                                                                                                                                },
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                    "op": "*",
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                            "expr": {
+                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                                "content": {
+                                                                                                                                                    "Block": {
+                                                                                                                                                        "ifBlock": {
+                                                                                                                                                            "condition": {
+                                                                                                                                                                "condition": {
+                                                                                                                                                                    "expr": {
+                                                                                                                                                                        "StrVar": "optchar",
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                                "logic": "==",
+                                                                                                                                                                "condition": {
+                                                                                                                                                                    "expr": {
+                                                                                                                                                                        "CHAR": "'/'",
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                            "packcontent": {
+                                                                                                                                                                "content": {
+                                                                                                                                                                    "stat": {
+                                                                                                                                                                        "AssignStat": {
+                                                                                                                                                                            "StrVar": "j",
+                                                                                                                                                                            "expr": {
+                                                                                                                                                                                "customFunc": {
+                                                                                                                                                                                    "StrVar": "Pop",
+                                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                                            "expr": {
+                                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                    "content": {
+                                                                                                                                                                        "stat": {
+                                                                                                                                                                            "AssignStat": {
+                                                                                                                                                                                "StrVar": "k",
+                                                                                                                                                                                "expr": {
+                                                                                                                                                                                    "StrVar": "j",
+                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                        "customFunc": {
+                                                                                                                                                                                            "StrVar": "Pop",
+                                                                                                                                                                                            "actualParams": {
+                                                                                                                                                                                                "actualParam": {
+                                                                                                                                                                                                    "expr": {
+                                                                                                                                                                                                        "StrVar": "num",
+                                                                                                                                                                                                    },
+                                                                                                                                                                                                },
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                    "op": "/",
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                        },
+                                                                                                                                                                        "content": {
+                                                                                                                                                                            "stat": {
+                                                                                                                                                                                "customFunc": {
+                                                                                                                                                                                    "StrVar": "Push",
+                                                                                                                                                                                    "actualParams": {
+                                                                                                                                                                                        "actualParams": {
+                                                                                                                                                                                            "actualParam": {
+                                                                                                                                                                                                "expr": {
+                                                                                                                                                                                                    "StrVar": "k",
+                                                                                                                                                                                                },
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                        "actualParam": {
+                                                                                                                                                                                            "expr": {
+                                                                                                                                                                                                "StrVar": "num",
+                                                                                                                                                                                            },
+                                                                                                                                                                                        },
+                                                                                                                                                                                    },
+                                                                                                                                                                                },
+                                                                                                                                                                            },
+                                                                                                                                                                            "content": {},
+                                                                                                                                                                        },
+                                                                                                                                                                    },
+                                                                                                                                                                },
+                                                                                                                                                            },
+                                                                                                                                                        },
+                                                                                                                                                    },
+                                                                                                                                                    "content": {
+                                                                                                                                                        "stat": {
+                                                                                                                                                            "continueStat": "continue",
+                                                                                                                                                        },
+                                                                                                                                                        "content": {},
+                                                                                                                                                    },
+                                                                                                                                                },
+                                                                                                                                            },
+                                                                                                                                        },
+                                                                                                                                    },
+                                                                                                                                },
+                                                                                                                            },
+                                                                                                                        },
+                                                                                                                    },
+                                                                                                                    "content": {},
+                                                                                                                },
+                                                                                                            },
+                                                                                                        },
+                                                                                                    },
+                                                                                                },
+                                                                                            },
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                            },
+                                                                            "content": {},
+                                                                        },
+                                                                    },
+                                                                },
+                                                            },
+                                                            "content": {
+                                                                "stat": {
+                                                                    "returnStat": {
+                                                                        "expr": {
+                                                                            "customFunc": {
+                                                                                "StrVar": "Pop",
+                                                                                "actualParams": {
+                                                                                    "actualParam": {
+                                                                                        "expr": {
+                                                                                            "StrVar": "num",
+                                                                                        },
+                                                                                    },
+                                                                                },
+                                                                            },
+                                                                        },
+                                                                    },
+                                                                },
+                                                                "content": {},
+                                                            },
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+        },
+    },
+    "codeBlock": {
+        "function": {
+            "returnType": "int",
+            "funcName": "main",
+            "params": {},
+            "packcontent": {
+                "content": {
+                    "stat": {
+                        "AssignStat": {
+                            "varType": "char",
+                            "array": {
+                                "StrVar": "a",
+                                "size": "100",
+                            },
+                            "expr": {
+                                "STRING": ""15/3+2*(4-2)"",
+                            },
+                        },
+                    },
+                    "content": {
+                        "stat": {
+                            "AssignStat": {
+                                "usualType": {},
+                                "StrVar": "t",
+                                "expr": {
+                                    "customFunc": {
+                                        "StrVar": "cal",
+                                        "actualParams": {
+                                            "actualParam": {
+                                                "expr": {
+                                                    "StrVar": "a",
+                                                },
+                                            },
+                                        },
+                                    },
+                                },
+                            },
+                        },
+                        "content": {
+                            "stat": {
+                                "returnStat": {
+                                    "expr": {
+                                        "StrVar": "t",
+                                    },
+                                },
+                            },
+                            "content": {},
+                        },
+                    },
+                },
+            },
+        },
+    },
+},
