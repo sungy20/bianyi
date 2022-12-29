@@ -14,6 +14,8 @@ def makeTree(filename):
 
 name = 'source\other.c'
 if __name__ == '__main__':
+    if len(sys.argv)>=2:
+        name = sys.argv[1]
     tree = makeTree(name)
     gen = LLVMGenerator()
     gen.visit(tree)
