@@ -387,6 +387,9 @@ class LLVMGenerator(C2LLVMVisitor):
                 converted_val = LLVMTypes.cast_type(self.builder, varType, val)
                 if converted_val is None:
                     converted_val = val
+		if converted_val.type.is_pointer:
+                    if isinstance(converted_val.type.pointee, ir.ArrayType):
+                        converted_val = self.builder.gep(converted_val, [LLVMTypes.int(0), LLVMTypes.int(0)])
                 self.builder.store(converted_val, valp)
         else:
             pass
