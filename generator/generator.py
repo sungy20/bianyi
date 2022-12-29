@@ -23,6 +23,8 @@ class LLVMGenerator(C2LLVMVisitor):
         self.continue_block = None
         self.break_block = None
         self.Blocks = []
+        self.str = ""
+        self.scope = ""
         self._inside_struct_ = 0
         self._current_struct_ = None
         self._current_struct_size_ = LLVMTypes.int(0)
