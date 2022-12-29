@@ -248,11 +248,6 @@ class LLVMGenerator(C2LLVMVisitor):
             p = p.pointee
         return depth
 
-    def aCouldBeStoredInB(self, a, b):
-        if self.depthOfPointer(a) - self.depthOfPointer(b) == -1:
-            return True
-        return False
-
     def visitDeclareStat(self, ctx: C2LLVMParser.DeclareStatContext):  #TODO
         """
         declareStat: (usualType StrVar |  varType array) ';';
@@ -271,7 +266,7 @@ class LLVMGenerator(C2LLVMVisitor):
             if len(ctx.children) == 3:  # 正常情况
                 if self.match_rule(ctx.children[1], C2LLVMParser.RULE_array):  # 声明数组
                     vtype = LLVMTypes.str2type[ctx.varType().getText()]
-                    self.str = self.str + '"varType":"' + vtype + '",'
+                    self.str = self.str + '"varType":"' + ctx.varType().getText() + '",'
                     var, size = self.visit(ctx.array())
                     if size == None:
                         print("declare need size")
@@ -328,11 +323,14 @@ class LLVMGenerator(C2LLVMVisitor):
                 if ctx.expr()[0].children[0].getText() == '&':
                     pass
                 else:
-                    if not self.aCouldBeStoredInB(val.type, varp.type):
+                    if (not self.aCouldBeStoredInB(val.type, varp.type)) and isinstance(val.type, ir.PointerType):
                         val = self.builder.load(val)
                 converted_rhs = LLVMTypes.cast_type(self.builder, varType, val)  # 将val转换为varType类型
                 if converted_rhs is None:
                     converted_rhs = val
+                if converted_rhs.type.is_pointer:
+                    if isinstance(converted_rhs.type.pointee, ir.ArrayType):
+                        converted_rhs = self.builder.gep(converted_rhs, [LLVMTypes.int(0), LLVMTypes.int(0)])
                 # 将值存储到指定的位置
                 self.builder.store(converted_rhs, varp)
                 self.local_vars[self.scope + var] = varp

@@ -1,3 +1,5 @@
+#include <stdio.h>
+#include <stdlib.h>
 
 int strlen(char *s_array)
 {
@@ -42,7 +44,6 @@ int get_next(char *g_t, int *g_next)
 	int g_j = 0;
 	g_next[0] = -1;
     int g_tlen = strlen(g_t);
-    printf("g_tlen = %d\n\n", g_tlen);
 	while (g_j < g_tlen)
 	{
 		if ((g_k == -1) || (g_t[g_j] == g_t[g_k]))
@@ -50,8 +51,6 @@ int get_next(char *g_t, int *g_next)
 			g_k = g_k + 1;
 			g_j = g_j + 1;
 			g_next[g_j] = g_k;
-			printf("g_next[%d] = %d\n", g_j, g_next[g_j]);
-            printf("g_next[%d] = %d\n", g_k, g_next[g_k]);
 		}
 		else
 		{
@@ -67,7 +66,6 @@ int print_next(int *p_next, int p_n)
     int p_i = 0;
 	while (p_i < p_n)
 	{
-		printf("p_next[%d] = %d\n", p_i, p_next[p_i]);
         p_i = p_i + 1;
 	}
     return 0;
@@ -75,8 +73,16 @@ int print_next(int *p_next, int p_n)
 
 int main()
 {
-	char s[100] = "ababcdabcacbab";
-	char t[100] = "abcac";
+	char s[100];
+	char t[100];
+	printf("please key in string:\n");
+	printf("(make sure there's no space in it)\n");
+    scanf("%s", s);
+	printf("please key in pattern:\n");
+	printf("(make sure there's no space in it)\n");
+    scanf("%s", t);
+
+	printf("s:%s\n",  s);
     printf("t:%s\n",  t);
     char *s_ptr = s;
     char *t_ptr = t;
